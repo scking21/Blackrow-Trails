@@ -1,6 +1,6 @@
 /* Blackrow Trails service worker — offline app shell + map tile caching.
  * Lets previously-viewed areas load with no signal (backcountry use). */
-const SHELL_CACHE = 'trail-shell-v5';   // bumped: net-fallback module + fallback wiring
+const SHELL_CACHE = 'trail-shell-v6';   // bumped: analytics.js added to the shell
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 const ASSET_CACHE = 'trail-assets-v1';  // vendored pdf.js / tesseract / jeep-sqlite
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
@@ -23,6 +23,7 @@ const SHELL_ASSETS = [
   './ar.js',
   './billing.js',
   './share.js',
+  './analytics.js',
   './reservations.js',
   './app.js',
 ];

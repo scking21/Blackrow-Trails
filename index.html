@@ -237,6 +237,7 @@
         <li>The map, land, weather, and forecast layers fetch live data for the area you’re viewing or the point you tap — that reveals <em>what you look at</em> to those data providers, but not where you are.</li>
         <li>Backups and GPX files you export contain precise coordinates — only you choose when to share them.</li>
       </ul>
+      <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share anonymous usage &amp; crash reports (no location, no personal data &mdash; helps us fix bugs)</label>
       <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-striptime"><span></span>Strip timestamps from exported track GPX (hides <em>when</em> you were there)</label>
       <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording with the screen off (background GPS — uses more battery; needs “Always” location, granted the first time you record)</label>
       <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Delete all my data on this device</button>
@@ -254,6 +255,8 @@
 <script src="ar.js"></script>
 <script src="billing.js"></script>
 <script src="share.js"></script>
+<!-- Anonymous product analytics + error capture (PostHog); see PRIVACY.md. -->
+<script type="module" src="analytics.js"></script>
 <!-- Web-only: registers the <jeep-sqlite> element used by the reservations DB.
      Harmless on native (Capacitor uses the native SQLite plugin instead). -->
 <script type="module" src="vendor/jeep-sqlite/jeep-sqlite.esm.js"></script>
