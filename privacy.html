@@ -25,9 +25,11 @@
 
   <p>Blackrow Trails is built to be private by default. Your location and your
   planning data stay on your device. We do not run servers that collect your
-  data and we never sell or share your information. The app sends us anonymous
-  usage statistics and crash reports (see "Analytics &amp; crash reports" below)
-  — you can turn this off in the app — and uses no advertising trackers.</p>
+  personal data, we do not use advertising trackers, and we never sell or share
+  your information — with advertisers, data brokers, or anyone else. To improve
+  the app we collect <strong>anonymous</strong> usage statistics and crash
+  reports (see "Analytics &amp; crash reports" below), which you can turn off
+  at any time.</p>
 
   <h2>What the app stores, and where</h2>
   <p>All of the following is stored <strong>only on your device</strong> (in the
@@ -88,21 +90,37 @@
 
   <h2>Analytics &amp; crash reports</h2>
   <p>To understand which features are used and to catch bugs, the app sends
-  anonymous usage events and error reports to PostHog (hosted in the United
-  States at <code>us.i.posthog.com</code>). This is the only data the app sends
-  that is about the app itself rather than the map area you're viewing:</p>
+  anonymous usage events (for example: "app opened", "trial started", "offline
+  download used") and error reports to PostHog (hosted in the United States at
+  <code>us.i.posthog.com</code>). This is the only data the app sends that is
+  about the app itself rather than the map area you're viewing:</p>
   <ul>
     <li><strong>What is sent:</strong> which screens and features are used, taps
-    on app controls, app version and device type, and technical error/crash
-    details. Each install is identified by a random ID that is not linked to
-    your name, email, or any account (the app has no accounts).</li>
-    <li><strong>What is never sent:</strong> your GPS position, recorded tracks,
-    waypoints, trip plans, reservations or uploaded documents, exports, or
-    anything you type. Session recording/replay is disabled.</li>
-    <li><strong>Opting out:</strong> turn off <strong>"Share anonymous usage
-    &amp; crash reports"</strong> in <strong>Planner → Privacy &amp; data</strong>
-    at any time. The choice is stored on your device and stops all analytics
-    immediately.</li>
+    on app controls (with all on-screen text and attributes masked), app version
+    and device type, and technical error/crash details. Each install is
+    identified by a random ID that is not linked to your name, email, or any
+    account (the app has no accounts).</li>
+    <li><strong>Never your location.</strong> No GPS positions, coordinates,
+    tracks, waypoints, routes, plans, or place names are ever included — the app
+    strips anything location-shaped from analytics events before they can be
+    sent, as a hard technical guarantee, not just a policy. Every event is also
+    marked to forbid IP-based location lookup on the server.</li>
+    <li><strong>Never your identity.</strong> Recorded tracks, reservations,
+    uploaded documents, exports, and anything you type are never sent. No user
+    profile is built, and session recording/replay is disabled.</li>
+    <li><strong>Never for advertising.</strong> This data is used only to make
+    product decisions (what to build, fix, or remove). It is <strong>never sold,
+    rented, or shared with advertisers or data brokers</strong>, and we show no
+    ads.</li>
+    <li><strong>Your choice.</strong> Analytics is on by default, and we tell
+    you: a one-time notice on first launch says so and offers the off switch
+    right there. Turn it off any time at <strong>Planner → Privacy &amp; data →
+    "Share anonymous usage &amp; crash reports."</strong> The choice is stored
+    on your device and stops all analytics immediately. If your device sends a
+    <strong>Do Not Track</strong> or <strong>Global Privacy Control</strong>
+    signal, analytics starts <strong>off</strong> automatically (your explicit
+    toggle choice always wins). "Delete all my data on this device" also resets
+    the random analytics identifier, unlinking anything sent before.</li>
   </ul>
   <p>PostHog processes this data on our behalf under its own
   <a href="https://posthog.com/privacy">privacy policy</a>.</p>
@@ -126,8 +144,8 @@
 
   <h2>Children</h2>
   <p>Blackrow Trails is a general-audience outdoor app and is not directed at
-  children under 13. It collects no personal information beyond the anonymous,
-  non-identifying analytics described above.</p>
+  children under 13. It collects no personal information; the anonymous usage
+  analytics described above contain no identity or location data.</p>
 
   <h2>Contact</h2>
   <p>Questions about this policy: <a href="mailto:aggie.king21@gmail.com">aggie.king21@gmail.com</a></p>
