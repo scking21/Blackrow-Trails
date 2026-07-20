@@ -108,6 +108,9 @@
   #land-status.error, #cad-status.error, #trail-status.error, #poi-status.error, #camp-status.error, #offroad-status.error { color: var(--hard); }
   /* Serving previously-fetched (last-good) data because the live source is unreachable. */
   #land-status.stale, #cad-status.stale, #trail-status.stale, #poi-status.stale, #camp-status.stale, #offroad-status.stale, #slope-status.stale, #radar-status.stale { color: #b8860b; }
+  /* Budget-blocked on a satellite link — informational, not an error: texts and
+     alerts still work, bulk/tile data is paused and served from cache. */
+  #land-status.satellite, #cad-status.satellite, #trail-status.satellite, #poi-status.satellite, #camp-status.satellite, #offroad-status.satellite, #slope-status.satellite, #radar-status.satellite { color: var(--moderate); }
   .leg-line { display: inline-block; width: 20px; height: 0; vertical-align: middle; flex-shrink: 0; }
   .name-popup .leaflet-popup-content { margin: 8px 12px; font-size: 13px; line-height: 1.35; }
   .name-popup .leaflet-popup-content small { color: var(--muted); }
