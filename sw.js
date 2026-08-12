@@ -4,7 +4,7 @@ const SHELL_CACHE = 'trail-shell-v7';   // bumped: T-Satellite analytics event w
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 const ASSET_CACHE = 'trail-assets-v1';  // vendored pdf.js / tesseract / jeep-sqlite
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
-const MAX_TILES   = 2000;            // ~ a few regions at trail zooms (+ shared slope terrain tiles)
+const MAX_TILES   = 4000;            // shared ceiling with page-side offline region downloads
 
 // Dev cache-buster: on localhost, serve the app shell network-first so edits show
 // immediately. In the packaged native app (capacitor:// / https://localhost is the
@@ -37,7 +37,10 @@ const isResAsset = (url) =>
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(SHELL_CACHE)
-      .then((c) => Promise.allSettled(SHELL_ASSETS.map((u) => c.add(u))))
+      // The shell is a single offline unit. Let addAll reject the install if
+      // any required asset cannot be cached; a partially installed shell must
+      // never activate.
+      .then((c) => c.addAll(SHELL_ASSETS))
       .then(() => self.skipWaiting())
   );
 });
@@ -77,24 +80,45 @@ self.addEventListener('fetch', (e) => {
 
   // Map tiles: cache-first (serve offline), then network + store.
   if (isTile(url)) {
+    // FetchEvent.waitUntil must be registered while handling the event. The
+    // promise is completed after a cache miss's write and trim have settled,
+    // but it is deliberately not awaited by respondWith's network response.
+    let completePersistence;
+    const persistence = new Promise((resolve) => { completePersistence = resolve; });
+    e.waitUntil(persistence);
+    const persist = (work) => {
+      Promise.resolve(work)
+        .catch(() => undefined)
+        .then(() => completePersistence());
+    };
+
     e.respondWith((async () => {
-      const cache = await caches.open(TILE_CACHE);
-      const hit = await cache.match(req);
-      if (hit) return hit;
+      let cache;
+      let hit;
+      try {
+        cache = await caches.open(TILE_CACHE);
+        hit = await cache.match(req);
+      } catch (error) {
+        completePersistence();
+        throw error;
+      }
+      if (hit) {
+        completePersistence();
+        return hit;
+      }
+
       try {
         // Terrain-RGB tiles must stay CORS-mode (see isCorsTile) and only be
         // cached on success; other basemap tiles can use no-cors (opaque OK).
-        if (isCorsTile(url)) {
-          const res = await fetch(req);
-          if (res.ok) { cache.put(req, res.clone()); trimTiles(); }
-          return res;
-        }
-        const res = await fetch(req, { mode: 'no-cors' });
-        cache.put(req, res.clone());
-        trimTiles();
-        return res;
+        const network = isCorsTile(url) ? fetch(req) : fetch(req, { mode: 'no-cors' });
+        persist(network.then((res) => {
+          if (isCorsTile(url) && !res.ok) return undefined;
+          return Promise.resolve(cache.put(req, res.clone())).then(() => trimTiles());
+        }));
+        return await network;
       } catch {
-        return hit || Response.error();
+        completePersistence();
+        return Response.error();
       }
     })());
     return;
