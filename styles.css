@@ -10,9 +10,18 @@
     --hard: #c0392b;
   }
   * { box-sizing: border-box; }
+  /* iOS Dynamic Type: the -apple-system-body font shorthand resolves the root
+     font-size to the user's current Dynamic Type body size inside WKWebView, so
+     `rem` (which everything below is written in) scales with it. The shorthand
+     also resets font-family/weight/style/line-height on <html>, so <body> keeps
+     declaring the family stack — descendants inherit from there, unchanged. */
+  html { font: -apple-system-body; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    /* body text size tracks the root (which tracks iOS Dynamic Type). Fixed chrome
+       is capped via min() lower down so nav/buttons don't balloon. */
+    font-size: 1rem;
     color: var(--text);
     height: 100vh;
     display: flex;
@@ -28,20 +37,32 @@
     padding: 0 16px;
     background: #1f3a24;
     color: #f4f1e8;
-    height: 52px;
+    min-height: 52px;
     flex-shrink: 0;
+    /* Wrap so the region <select> can never be pushed off-screen at
+       accessibility-XXXL. At default text sizes everything fits on one row and
+       nothing wraps; once the capped title/nav grow wide enough to exceed the
+       viewport, #region-select (and/or the nav) drop onto a second/third row
+       instead of being clipped. min-height (not height) lets the bar grow tall
+       enough to show every wrapped row. */
+    flex-wrap: wrap;
   }
-  header h1 { font-size: 17px; margin: 0 12px 0 0; font-weight: 600; }
-  nav { display: flex; gap: 4px; height: 100%; }
+  /* Cap fixed chrome so large Dynamic Type sizes don't blow up the title bar:
+     text scales with rem but stops at this ceiling. On wide screens header h1
+     is 17px → min(1.0625rem, 22px). */
+  header h1 { font-size: min(1.0625rem, 22px); margin: 0 12px 0 0; font-weight: 600; }
+  nav { display: flex; gap: 4px; min-height: 100%; }
   nav button {
     background: none;
     border: none;
     color: #c9d4c5;
-    font-size: 14px;
+    /* nav buttons live in fixed chrome: capped at 20px (no bigger than today's
+       comfortable default, even at accessibility-XXXL). */
+    font-size: min(0.875rem, 20px);
     padding: 0 14px;
     cursor: pointer;
     border-bottom: 3px solid transparent;
-    height: 100%;
+    min-height: 100%;
   }
   nav button.active {
     color: #fff;
@@ -56,7 +77,8 @@
     border: 1px solid #3f6b45;
     border-radius: 6px;
     padding: 5px 8px;
-    font-size: 13px;
+    /* fixed chrome in the header — capped at 18px so the select can't push the bar huge. */
+    font-size: min(0.8125rem, 18px);
     cursor: pointer;
   }
 
@@ -76,7 +98,7 @@
   }
   aside section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
   aside h2 {
-    font-size: 12px;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.07em;
     color: var(--muted);
@@ -89,7 +111,7 @@
     gap: 9px;
     padding: 5px 0;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 0.875rem;
     user-select: none;
   }
   .layer-row input { accent-color: var(--accent); }
@@ -103,7 +125,7 @@
     background: repeating-linear-gradient(45deg, #b9b1a2 0 2px, transparent 2px 5px);
   }
 
-  #land-status, #cad-status, #trail-status, #poi-status, #camp-status, #offroad-status { font-size: 10px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
+  #land-status, #cad-status, #trail-status, #poi-status, #camp-status, #offroad-status { font-size: 0.625rem; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
   #land-status.loading, #cad-status.loading, #trail-status.loading, #poi-status.loading, #camp-status.loading, #offroad-status.loading { color: #b8860b; }
   #land-status.error, #cad-status.error, #trail-status.error, #poi-status.error, #camp-status.error, #offroad-status.error { color: var(--hard); }
   /* Serving previously-fetched (last-good) data because the live source is unreachable. */
@@ -112,17 +134,34 @@
      alerts still work, bulk/tile data is paused and served from cache. */
   #land-status.satellite, #cad-status.satellite, #trail-status.satellite, #poi-status.satellite, #camp-status.satellite, #offroad-status.satellite, #slope-status.satellite, #radar-status.satellite { color: var(--moderate); }
   .leg-line { display: inline-block; width: 20px; height: 0; vertical-align: middle; flex-shrink: 0; }
-  .name-popup .leaflet-popup-content { margin: 8px 12px; font-size: 13px; line-height: 1.35; }
+  .name-popup .leaflet-popup-content { margin: 8px 12px; font-size: 0.8125rem; line-height: 1.35; }
   .name-popup .leaflet-popup-content small { color: var(--muted); }
+
+  /* Cap Leaflet map chrome — vendor/leaflet/leaflet.css declares
+     `.leaflet-container { font-size: 0.75rem }`, which tracked 12px while the
+     root was pinned at 16px but now inherits the Dynamic Type root and swells
+     to ~40px at accessibility-XXXL, covering the map. The attribution, layer
+     labels, and popup content all inherit from this container, so a ceiling on
+     it alone restores them. Map chrome overlaying a map, not scrollable text,
+     so it is capped like the other chrome — `min(<rem>, 12px)` holds it at the
+     original size even at accessibility-XXXL, and 12px never falls below the
+     11–12px attribution floor OSM/ODbL needs. The em-based descendants
+     (1.08333em → 13px) follow from the capped 12px container, unchanged. Do
+     not edit the vendored CSS — styles.css loads after it. */
+  .leaflet-container { font-size: min(0.75rem, 12px); }
+  /* `.leaflet-popup-content` is shadowed for name popups above; the generic
+     rule (trail/land popups) inherits the capped 12px container, and its own
+     1.08333em resolves against that cap → 13px, as before. No separate
+     ceiling needed. */
 
   /* Trails tab — 50-state directory */
   #tab-trails { display: none; overflow-y: auto; flex-direction: column; padding: 22px 26px; }
   #tab-trails.active { display: flex; }
   .trails-intro { max-width: 760px; margin-bottom: 18px; }
-  .trails-intro h2 { margin: 0 0 6px; font-size: 20px; }
-  .trails-intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .trails-intro h2 { margin: 0 0 6px; font-size: 1.25rem; }
+  .trails-intro p { margin: 0; color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
   #state-search {
-    margin: 4px 0 18px; padding: 9px 12px; font-size: 14px; width: 100%; max-width: 380px;
+    margin: 4px 0 18px; padding: 9px 12px; font-size: 0.875rem; width: 100%; max-width: 380px;
     border: 1px solid var(--border); border-radius: 8px;
   }
   .state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; max-width: 1100px; }
@@ -131,20 +170,20 @@
     padding: 11px 13px; cursor: pointer; transition: border-color .12s, box-shadow .12s;
   }
   .state-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .state-card .sc-name { font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; }
-  .state-card .sc-abbr { color: var(--muted); font-size: 11px; font-weight: 500; }
-  .state-card .sc-area { color: #4d4a42; font-size: 12px; margin-top: 3px; }
+  .state-card .sc-name { font-weight: 600; font-size: 0.875rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .state-card .sc-abbr { color: var(--muted); font-size: 0.6875rem; font-weight: 500; }
+  .state-card .sc-area { color: #4d4a42; font-size: 0.75rem; margin-top: 3px; }
 
-  .legend-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; }
+  .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; padding: 3px 0; }
   .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
 
   /* Trail detail panel */
   #detail { display: none; }
   #detail.open { display: block; }
-  #detail h3 { margin: 0 0 2px; font-size: 16px; }
+  #detail h3 { margin: 0 0 2px; font-size: 1rem; }
   #detail .diff-badge {
     display: inline-block;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 700;
     color: #fff;
     border-radius: 10px;
@@ -154,36 +193,36 @@
     margin-bottom: 10px;
   }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-bottom: 12px; }
-  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .stat .value { font-size: 15px; font-weight: 600; }
-  #detail p.desc { font-size: 13px; color: #4d4a42; line-height: 1.45; margin: 0 0 14px; }
+  .stat .label { font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .value { font-size: 0.9375rem; font-weight: 600; }
+  #detail p.desc { font-size: 0.8125rem; color: #4d4a42; line-height: 1.45; margin: 0 0 14px; }
   /* Access (road + parking) block */
   .access-block { border: 1px solid var(--line, #e2ded3); border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; background: #faf9f5; }
   .access-row { display: flex; gap: 10px; align-items: flex-start; }
   .access-row + .access-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line, #e9e5db); }
-  .access-ico { font-size: 24px; line-height: 1; flex: 0 0 auto; width: 26px; text-align: center; }
-  .access-lab { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .access-val { font-size: 13px; color: #3a382f; line-height: 1.4; margin-top: 1px; }
-  .access-link { display: inline-block; margin-top: 5px; font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; cursor: pointer; }
+  .access-ico { font-size: 1.5rem; line-height: 1; flex: 0 0 auto; width: 26px; text-align: center; }
+  .access-lab { font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .access-val { font-size: 0.8125rem; color: #3a382f; line-height: 1.4; margin-top: 1px; }
+  .access-link { display: inline-block; margin-top: 5px; font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; cursor: pointer; }
   .access-link:hover { text-decoration: underline; }
   /* Emergency block */
   .emergency-block { border: 1px solid #e7c3bd; border-radius: 8px; padding: 10px 12px; margin: 0 0 12px; background: #fcf3f1; }
-  .emergency-h { font-size: 12px; font-weight: 700; color: #a23b2c; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .emergency-h { font-size: 0.75rem; font-weight: 700; color: #a23b2c; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
   .emergency-h span { font-weight: 500; text-transform: none; color: var(--muted); letter-spacing: 0; }
   a.emergency-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-decoration: none; color: inherit; padding: 6px 0; border-top: 1px solid #f0d8d3; }
   a.emergency-item:first-of-type { border-top: none; }
-  .emergency-item .ei-lab { font-size: 12px; color: #4d4a42; line-height: 1.3; }
-  .emergency-item .ei-tel { font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .emergency-item .ei-lab { font-size: 0.75rem; color: #4d4a42; line-height: 1.3; }
+  .emergency-item .ei-tel { font-size: 0.875rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
   a.emergency-item.primary { background: #fbe4df; margin: 0 -6px; padding: 8px 6px; border-radius: 6px; border-top: none; }
-  a.emergency-item.primary .ei-tel { color: #c0392b; font-size: 16px; }
-  .emergency-note { font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 8px; }
+  a.emergency-item.primary .ei-tel { color: #c0392b; font-size: 1rem; }
+  .emergency-note { font-size: 0.6875rem; color: var(--muted); line-height: 1.4; margin-top: 8px; }
   .directions-btn {
     display: block;
     text-align: center;
     background: var(--accent);
     color: #fff;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
     padding: 10px;
     border-radius: 8px;
@@ -193,7 +232,7 @@
     float: right;
     border: none;
     background: none;
-    font-size: 18px;
+    font-size: 1.125rem;
     color: var(--muted);
     cursor: pointer;
     line-height: 1;
@@ -201,7 +240,7 @@
   .placeholder {
     margin: auto;
     color: var(--muted);
-    font-size: 15px;
+    font-size: 0.9375rem;
   }
 
   /* Add-to-plan button in detail panel */
@@ -209,7 +248,7 @@
     display: block; width: 100%; margin-top: 8px;
     text-align: center; background: #fff; color: var(--accent);
     border: 1px solid var(--accent); border-radius: 8px;
-    font-size: 14px; font-weight: 600; padding: 9px; cursor: pointer;
+    font-size: 0.875rem; font-weight: 600; padding: 9px; cursor: pointer;
   }
   .plan-btn:hover { background: #f0f6f0; }
   .plan-btn.added { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -219,12 +258,12 @@
   #tab-planner.active { display: flex; }
   .planner-wrap { max-width: 820px; width: 100%; }
   .planner-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-  .planner-head h2 { margin: 0; font-size: 20px; }
+  .planner-head h2 { margin: 0; font-size: 1.25rem; }
   #plan-clear {
-    background: none; border: none; color: var(--hard); font-size: 13px; cursor: pointer; padding: 4px;
+    background: none; border: none; color: var(--hard); font-size: 0.8125rem; cursor: pointer; padding: 4px;
   }
   #plan-clear:hover { text-decoration: underline; }
-  .planner-sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+  .planner-sub { color: var(--muted); font-size: 0.875rem; margin: 0 0 18px; }
 
   .plan-totals {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
@@ -232,8 +271,8 @@
     padding: 14px 16px; margin-bottom: 18px;
   }
   .plan-totals .pt { text-align: center; }
-  .plan-totals .pt-val { font-size: 22px; font-weight: 700; color: var(--accent); }
-  .plan-totals .pt-lab { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-top: 2px; }
+  .plan-totals .pt-val { font-size: 1.375rem; font-weight: 700; color: var(--accent); }
+  .plan-totals .pt-lab { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-top: 2px; }
 
   .plan-list { display: flex; flex-direction: column; gap: 10px; }
   .plan-item {
@@ -242,17 +281,17 @@
   }
   .plan-item .pi-bar { width: 5px; align-self: stretch; border-radius: 3px; flex-shrink: 0; }
   .plan-item .pi-main { flex: 1; min-width: 0; }
-  .plan-item .pi-name { font-weight: 600; font-size: 15px; }
-  .plan-item .pi-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .plan-item .pi-name { font-weight: 600; font-size: 0.9375rem; }
+  .plan-item .pi-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
   .plan-item .pi-remove {
-    border: none; background: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px;
+    border: none; background: none; color: var(--muted); font-size: 1.125rem; cursor: pointer; line-height: 1; padding: 4px;
   }
   .plan-item .pi-remove:hover { color: var(--hard); }
-  .plan-empty { color: var(--muted); font-size: 15px; padding: 30px 0; text-align: center; }
-  #wp-export, #wp-import { background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px; }
+  .plan-empty { color: var(--muted); font-size: 0.9375rem; padding: 30px 0; text-align: center; }
+  #wp-export, #wp-import { background: none; border: none; color: var(--accent); font-size: 0.8125rem; font-weight: 600; cursor: pointer; padding: 4px; }
   #wp-export:hover, #wp-import:hover { text-decoration: underline; }
   #wp-export:disabled { color: var(--muted); cursor: default; text-decoration: none; }
-  .plan-item .pi-edit { border: none; background: none; color: var(--muted); font-size: 15px; cursor: pointer; line-height: 1; padding: 4px; }
+  .plan-item .pi-edit { border: none; background: none; color: var(--muted); font-size: 0.9375rem; cursor: pointer; line-height: 1; padding: 4px; }
   .plan-item .pi-edit:hover { color: var(--accent); }
   .plan-item .pi-name.clickable { cursor: pointer; }
 
@@ -261,37 +300,37 @@
   .kit-types { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
   .kit-type {
     border: 1px solid var(--border); background: #fff; border-radius: 20px;
-    padding: 7px 15px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer;
+    padding: 7px 15px; font-size: 0.8125rem; font-weight: 600; color: var(--text); cursor: pointer;
   }
   .kit-type:hover { border-color: var(--accent); }
   .kit-type.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   .kit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
   .kit-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; background: #fff; }
-  .kit-card h3 { margin: 0 0 10px; font-size: 14px; display: flex; align-items: baseline; gap: 6px; }
-  .kit-tag { font-size: 11px; font-weight: 600; color: var(--muted); background: #f0eee7; border-radius: 10px; padding: 2px 8px; }
-  .gear-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; padding: 3px 0; cursor: pointer; }
+  .kit-card h3 { margin: 0 0 10px; font-size: 0.875rem; display: flex; align-items: baseline; gap: 6px; }
+  .kit-tag { font-size: 0.6875rem; font-weight: 600; color: var(--muted); background: #f0eee7; border-radius: 10px; padding: 2px 8px; }
+  .gear-row { display: flex; align-items: flex-start; gap: 8px; font-size: 0.8125rem; padding: 3px 0; cursor: pointer; }
   .gear-row input { accent-color: var(--accent); margin-top: 2px; }
   .haz-group { margin-bottom: 9px; }
-  .haz-group .haz-h { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 3px; }
+  .haz-group .haz-h { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 3px; }
   .haz-list { display: flex; flex-wrap: wrap; gap: 5px; }
-  .haz-chip { font-size: 12px; background: #fbeee9; color: #9a3b22; border: 1px solid #f0d3c8; border-radius: 8px; padding: 2px 8px; }
+  .haz-chip { font-size: 0.75rem; background: #fbeee9; color: #9a3b22; border: 1px solid #f0d3c8; border-radius: 8px; padding: 2px 8px; }
   .haz-chip.plant { background: #eef6ea; color: #3f6b2e; border-color: #d5e8cb; }
   .haz-chip.cond { background: #eef2f8; color: #355a86; border-color: #d2def0; }
-  .rig-line { font-size: 13px; margin: 4px 0; }
+  .rig-line { font-size: 0.8125rem; margin: 4px 0; }
   .rig-line .rl-lab { color: var(--muted); }
-  .rig-list { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
-  .kit-note { font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.4; }
+  .rig-list { margin: 6px 0 0; padding-left: 18px; font-size: 0.8125rem; line-height: 1.5; }
+  .kit-note { font-size: 0.6875rem; color: var(--muted); margin-top: 12px; line-height: 1.4; }
 
   /* Permits & passes */
   .permit-card { margin-top: 14px; }
   .permit-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); }
   .permit-row:last-child { border-bottom: none; }
   .permit-main { flex: 1; min-width: 0; }
-  .permit-title { font-weight: 600; font-size: 14px; }
-  .permit-desc { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .permit-title { font-weight: 600; font-size: 0.875rem; }
+  .permit-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
   .permit-link {
     flex-shrink: 0; background: var(--accent); color: #fff; text-decoration: none;
-    font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 8px; white-space: nowrap;
+    font-size: 0.8125rem; font-weight: 600; padding: 7px 13px; border-radius: 8px; white-space: nowrap;
   }
   .permit-link:hover { background: #245428; }
 
@@ -308,29 +347,36 @@
   .te {
     width: 24px; height: 24px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; line-height: 1;
+    font-size: 0.8125rem; line-height: 1;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   }
   .te-head { border: 2px solid var(--easy); }    /* trailhead — green ring */
   .te-end  { border: 2px solid var(--hard); }    /* terminus  — red ring */
-  .te-park { border: 2px solid #1f6feb; font-weight: 700; color: #1f6feb; font-size: 14px; } /* parking — blue ring */
+  .te-park { border: 2px solid #1f6feb; font-weight: 700; color: #1f6feb; font-size: 0.875rem; } /* parking — blue ring */
   .te-wp   { border: 2px solid #b8860b; }          /* user waypoint — gold ring */
 
   /* ---- Mobile / native (Capacitor) polish ---- */
   /* Respect notches & status bars on both platforms */
-  header { padding-top: env(safe-area-inset-top); height: calc(52px + env(safe-area-inset-top)); }
+  header { padding-top: env(safe-area-inset-top); min-height: calc(52px + env(safe-area-inset-top)); }
 
   @media (max-width: 760px), (pointer: coarse) {
-    header { gap: 6px; padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); overflow: hidden; }
-    header h1 { font-size: 15px; margin-right: 2px; white-space: nowrap; flex-shrink: 0; }
+    /* overflow:hidden is deliberately NOT carried into the wrapped layout: with
+       flex-wrap on header, a clipping overflow would hide the wrapped
+       #region-select row — exactly the off-screen regression round C fixes. The
+       horizontal bound the old overflow:hidden provided is re-established by
+       #region-select { max-width: 38vw } below (and by flex-wrap itself, which
+       moves any overflow onto a new row instead of letting it spill). min-height
+       (not height) lets the bar grow tall enough to fit every wrapped row. */
+    header { gap: 6px; padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+    header h1 { font-size: min(0.9375rem, 22px); margin-right: 2px; white-space: nowrap; flex-shrink: 0; }
     nav { gap: 0; }
-    nav button { padding: 0 12px; font-size: 13px; min-height: 44px; }   /* 44px = min touch target */
-    #region-select { padding: 7px 8px; font-size: 12px; max-width: 38vw; }
+    nav button { padding: 0 12px; font-size: min(0.8125rem, 20px); min-height: 44px; }   /* 44px = min touch target */
+    #region-select { padding: 7px 8px; font-size: min(0.75rem, 18px); max-width: 38vw; }
 
     /* Map tab becomes vertical: full-bleed map + draggable bottom panel */
-    #tab-map.active { flex-direction: column; }
+    #tab-map.active { flex-direction: column; position: relative; }
     #map { flex: 1; min-height: 40vh; }
     aside {
       width: 100%;
@@ -346,7 +392,7 @@
       content: ""; display: block; width: 38px; height: 4px; border-radius: 2px;
       background: var(--border); margin: 8px auto 2px;
     }
-    .layer-row { padding: 9px 0; font-size: 15px; }       /* easier to tap */
+    .layer-row { padding: 9px 0; font-size: 0.9375rem; }       /* easier to tap */
     .layer-row input { width: 20px; height: 20px; }
 
     /* Trails & Planner tabs: comfortable phone padding + safe areas */
@@ -368,24 +414,24 @@
   }
 
   /* ===== Membership / paywall ===== */
-  .plan-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+  .plan-badge { display:inline-flex; align-items:center; gap:5px; font-size: 0.6875rem; font-weight:700;
     padding:3px 9px; border-radius:999px; letter-spacing:.02em; vertical-align:middle; }
   .plan-badge.free  { background:#e7eae3; color:#4a5247; }
   .plan-badge.trial { background:#fde9c8; color:#8a5a12; }
   .plan-badge.paid  { background:#1f3a24; color:#bfe6c6; }
-  .lock-pill { font-size:11px; font-weight:700; color:#8a5a12; background:#fde9c8;
+  .lock-pill { font-size: 0.6875rem; font-weight:700; color:#8a5a12; background:#fde9c8;
     border-radius:999px; padding:1px 7px; margin-left:6px; }
   .membership-card { border:1px solid var(--line,#dfe3da); border-radius:12px; padding:16px 18px;
     margin:0 0 20px; background:#fafbf8; }
-  .membership-card h2 { margin:0 0 6px; font-size:18px; display:flex; align-items:center; gap:10px; }
-  .membership-card .mc-sub { color:var(--muted); font-size:13px; margin:0 0 12px; line-height:1.5; }
+  .membership-card h2 { margin:0 0 6px; font-size: 1.125rem; display:flex; align-items:center; gap:10px; }
+  .membership-card .mc-sub { color:var(--muted); font-size: 0.8125rem; margin:0 0 12px; line-height:1.5; }
   .membership-card .mc-actions { display:flex; flex-wrap:wrap; gap:10px; }
-  .btn-paid { padding:10px 16px; border:none; border-radius:9px; font-size:14px; font-weight:700;
+  .btn-paid { padding:10px 16px; border:none; border-radius:9px; font-size: 0.875rem; font-weight:700;
     cursor:pointer; background:#2e6b34; color:#fff; }
   .btn-paid.secondary { background:#fff; color:#2e6b34; border:1.5px solid #2e6b34; }
   .btn-paid:disabled { opacity:.5; cursor:default; }
   .feature-list { list-style:none; margin:10px 0 0; padding:0; }
-  .feature-list li { display:flex; gap:9px; align-items:flex-start; font-size:13.5px;
+  .feature-list li { display:flex; gap:9px; align-items:flex-start; font-size: 0.84375rem;
     padding:5px 0; color:#2b3329; line-height:1.45; }
   .feature-list li .fi { flex:0 0 auto; width:18px; text-align:center; }
 
@@ -397,16 +443,16 @@
   .pw-card { background:#fff; border-radius:16px; max-width:430px; width:100%;
     max-height:88vh; overflow-y:auto; box-shadow:0 18px 50px rgba(0,0,0,.35);
     padding:24px 24px 20px; }
-  .pw-card h2 { margin:0 0 4px; font-size:21px; color:#1f3a24; }
-  .pw-card .pw-feat { color:var(--muted); font-size:13.5px; margin:0 0 4px; }
+  .pw-card h2 { margin:0 0 4px; font-size: 1.3125rem; color:#1f3a24; }
+  .pw-card .pw-feat { color:var(--muted); font-size: 0.84375rem; margin:0 0 4px; }
   .pw-card .pw-hi { font-weight:700; color:#2e6b34; }
-  .pw-price { font-size:13px; color:var(--muted); margin:14px 0 4px; }
+  .pw-price { font-size: 0.8125rem; color:var(--muted); margin:14px 0 4px; }
   .pw-actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
   .pw-actions .btn-paid { width:100%; }
-  .pw-dismiss { background:none; border:none; color:var(--muted); font-size:13px;
+  .pw-dismiss { background:none; border:none; color:var(--muted); font-size: 0.8125rem;
     cursor:pointer; margin-top:6px; width:100%; padding:6px; }
-  .pw-note { font-size:11.5px; color:var(--muted); text-align:center; margin:10px 0 0; line-height:1.4; }
-  .pw-legal { font-size:11.5px; text-align:center; margin:8px 0 0; }
+  .pw-note { font-size: 0.71875rem; color:var(--muted); text-align:center; margin:10px 0 0; line-height:1.4; }
+  .pw-legal { font-size: 0.71875rem; text-align:center; margin:8px 0 0; }
   .pw-legal a { color:var(--accent); text-decoration:underline; }
 
   /* ===== Multi-day planner ===== */
@@ -414,52 +460,263 @@
   .day-card.active { border-color:#2e6b34; box-shadow:0 0 0 1px #2e6b34 inset; }
   .day-head { display:flex; align-items:center; gap:10px; padding:11px 14px; background:#f3f6f1; cursor:pointer; }
   .day-card.active .day-head { background:#e6f0e6; }
-  .day-head .day-title { font-weight:700; font-size:15px; flex:1; border:none; background:transparent; color:#22301f; padding:2px 4px; border-radius:6px; }
+  .day-head .day-title { font-weight:700; font-size: 0.9375rem; flex:1; border:none; background:transparent; color:#22301f; padding:2px 4px; border-radius:6px; }
   .day-head .day-title:focus { background:#fff; outline:1.5px solid #2e6b34; }
-  .day-head .day-active-tag { font-size:10px; font-weight:700; color:#2e6b34; background:#cfe6cf; border-radius:999px; padding:2px 7px; }
-  .day-head .day-del { border:none; background:none; color:var(--muted); font-size:16px; cursor:pointer; line-height:1; padding:4px; }
+  .day-head .day-active-tag { font-size: 0.625rem; font-weight:700; color:#2e6b34; background:#cfe6cf; border-radius:999px; padding:2px 7px; }
+  .day-head .day-del { border:none; background:none; color:var(--muted); font-size: 1rem; cursor:pointer; line-height:1; padding:4px; }
   .day-head .day-del:hover { color:#c0392b; }
-  .day-totals { display:flex; gap:14px; padding:6px 14px 0; font-size:11.5px; color:var(--muted); }
+  .day-totals { display:flex; gap:14px; padding:6px 14px 0; font-size: 0.71875rem; color:var(--muted); }
   .day-totals b { color:#2b3329; }
   .day-body { padding:8px 14px 12px; }
-  .day-empty { font-size:12.5px; color:var(--muted); padding:8px 2px; }
+  .day-empty { font-size: 0.78125rem; color:var(--muted); padding:8px 2px; }
   .trip-meta-row { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 0 14px; }
-  .trip-meta-row label { font-size:13px; color:var(--muted); font-weight:600; }
-  .trip-meta-row input[type=date] { padding:8px 10px; border:1px solid var(--line,#dfe3da); border-radius:8px; font-size:14px; background:#fff; }
+  .trip-meta-row label { font-size: 0.8125rem; color:var(--muted); font-weight:600; }
+  .trip-meta-row input[type=date] { padding:8px 10px; border:1px solid var(--line,#dfe3da); border-radius:8px; font-size: 0.875rem; background:#fff; }
   .trip-meta-row #plan-share { margin-left:auto; padding:9px 14px; }
   .pi-route .pi-bar { background:#1f6feb !important; }
-  .pi-move { border:none; background:#eef1ec; color:#3a463a; font-size:11px; border-radius:6px; padding:3px 6px; cursor:pointer; }
+  .pi-move { border:none; background:#eef1ec; color:#3a463a; font-size: 0.6875rem; border-radius:6px; padding:3px 6px; cursor:pointer; }
 
   /* ===== Route drawing toolbar (on the map) ===== */
   #route-toolbar { position:absolute; left:50%; transform:translateX(-50%);
-    top:calc(12px + env(safe-area-inset-top)); z-index:1200; display:none;
+    top:12px; z-index:1200; display:none;
     background:#1f3a24; color:#fff; border-radius:12px; padding:10px 12px;
     box-shadow:0 6px 22px rgba(0,0,0,.35); max-width:calc(100vw - 24px); }
   #route-toolbar.open { display:block; }
   #route-toolbar .rt-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  #route-toolbar .rt-stat { font-size:12px; opacity:.9; margin-right:4px; }
-  #route-toolbar button { border:none; border-radius:8px; padding:7px 11px; font-size:13px; font-weight:600; cursor:pointer; }
+  /* Route toolbar is floating map chrome (position:absolute over #map), the
+     same category as the Leaflet attribution and the header bar — not readable
+     text in a scrollable pane. Cap each text size with min() so Dynamic Type
+     stops it from covering the map; .rt-row already wraps, so nothing clips. */
+  #route-toolbar .rt-stat { font-size: min(0.75rem, 12px); opacity:.9; margin-right:4px; }
+  #route-toolbar button { border:none; border-radius:8px; padding:7px 11px; font-size: min(0.8125rem, 13px); font-weight:600; cursor:pointer; }
   #route-toolbar .rt-finish { background:#2e6b34; color:#fff; }
   #route-toolbar .rt-undo, #route-toolbar .rt-cancel { background:#3a5640; color:#dfeede; }
-  #route-toolbar .rt-snap { display:flex; align-items:center; gap:5px; font-size:12px; cursor:pointer; }
-  #route-toolbar .rt-hint { font-size:11px; opacity:.8; margin-top:6px; }
+  #route-toolbar .rt-snap { display:flex; align-items:center; gap:5px; font-size: min(0.75rem, 12px); cursor:pointer; }
+  #route-toolbar .rt-hint { font-size: min(0.6875rem, 11px); opacity:.8; margin-top:6px; }
 
   /* ===== Trail name search (on the map) ===== */
   #trail-search { position:absolute; z-index:1100; left:12px;
-    top:calc(12px + env(safe-area-inset-top)); width:min(330px, calc(100vw - 90px)); }
+    top:12px; width:min(330px, calc(100vw - 90px)); }
   #trail-search .ts-box { display:flex; align-items:center; background:#fff; border-radius:10px;
     box-shadow:0 2px 10px rgba(0,0,0,.22); border:1px solid #cfcabd; overflow:hidden; }
-  #trail-search .ts-box span.ts-ico { padding:0 4px 0 10px; font-size:14px; color:#5a6157; }
-  #trail-search input { flex:1; border:none; outline:none; padding:11px 8px; font-size:14px; background:transparent; }
-  #trail-search .ts-clear { border:none; background:none; font-size:16px; color:#8a8a82; cursor:pointer; padding:0 10px; display:none; }
+  /* The search box is floating map chrome (position:absolute over #map), not a
+     scrollable pane — cap its text with min() so Dynamic Type doesn't enlarge
+     it to the full 53px root (which truncates the "Search trails by name…"
+     placeholder to "Search trails"). The caps below are chosen to keep that
+     placeholder intact at the 312px box width at root=53px / 402px viewport.
+     The results dropdown (#ts-results) is deliberately NOT capped here — it is
+     a scrollable list of trail names (content), like the aside/planner, and
+     keeps scaling fully. */
+  #trail-search .ts-box span.ts-ico { padding:0 4px 0 10px; font-size: min(0.875rem, 14px); color:#5a6157; }
+  #trail-search input { flex:1; border:none; outline:none; padding:11px 8px; font-size: min(0.875rem, 14px); background:transparent; }
+  #trail-search .ts-clear { border:none; background:none; font-size: min(1rem, 16px); color:#8a8a82; cursor:pointer; padding:0 10px; display:none; }
   #ts-results { margin-top:6px; background:#fff; border-radius:10px; box-shadow:0 6px 22px rgba(0,0,0,.25);
     max-height:min(56vh, 420px); overflow-y:auto; display:none; }
   #ts-results.open { display:block; }
-  .ts-group { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  .ts-group { font-size: 0.625rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
     color:#7a8174; padding:8px 12px 4px; }
   .ts-item { display:flex; gap:8px; align-items:flex-start; padding:9px 12px; cursor:pointer; border-top:1px solid #f0efe9; }
   .ts-item:hover { background:#f4f7f2; }
   .ts-item .ts-bar { flex:0 0 auto; width:4px; align-self:stretch; border-radius:2px; background:#1f6feb; }
-  .ts-item .ts-name { font-size:13.5px; font-weight:600; color:#22301f; }
-  .ts-item .ts-meta { font-size:11.5px; color:var(--muted); margin-top:1px; }
-  .ts-empty, .ts-status { padding:11px 12px; font-size:12.5px; color:var(--muted); }
+  .ts-item .ts-name { font-size: 0.84375rem; font-weight:600; color:#22301f; }
+  .ts-item .ts-meta { font-size: 0.71875rem; color:var(--muted); margin-top:1px; }
+  .ts-empty, .ts-status { padding:11px 12px; font-size: 0.78125rem; color:var(--muted); }
+
+  /* ===== My Trips ===== */
+  .trip-overview { margin-bottom:12px; }
+  #active-trip-button {
+    display:flex; flex-direction:column; align-items:flex-start; width:100%;
+    min-height:44px; padding:8px 12px; border:1px solid var(--border);
+    border-radius:10px; background:var(--panel-bg); cursor:pointer;
+    font-family:inherit; text-align:left;
+  }
+  #active-trip-button .atb-label {
+    font-size: 0.6875rem; color:var(--muted); font-weight:600;
+    letter-spacing:.03em; text-transform:uppercase; margin-bottom:2px;
+  }
+  #active-trip-button .atb-name {
+    font-size: 0.9375rem; font-weight:600; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    max-width:100%;
+  }
+  #active-trip-button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .my-trips-sheet {
+    display:flex; flex-direction:column; position:fixed; left:0; right:0; bottom:0;
+    max-height:70vh; overflow-y:auto; z-index:2000;
+    background:var(--panel-bg); border-radius:16px 16px 0 0;
+    box-shadow:0 -4px 24px rgba(0,0,0,.25);
+    border-top:1px solid var(--border);
+  }
+  .my-trips-sheet[hidden] { display:none; }
+  .mts-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-bottom:1px solid var(--border);
+    position:sticky; top:0; background:var(--panel-bg); z-index:1;
+  }
+  .mts-head h2 { font-size: 1.0625rem; margin:0; font-weight:600; color:var(--text); }
+  #my-trips-close {
+    min-width:44px; min-height:44px; border:none; background:none;
+    font-size: 1.125rem; color:var(--muted); cursor:pointer; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #my-trips-close:hover { background:#f0eee8; color:var(--text); }
+  #my-trips-close:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .my-trips-list { display:flex; flex-direction:column; gap:8px; padding:8px 12px 16px; }
+
+  .trip-card {
+    display:block; width:100%; text-align:left; padding:10px 14px;
+    border:1px solid var(--border); border-radius:10px; background:var(--panel-bg);
+    cursor:pointer; font-family:inherit; color:var(--text);
+  }
+  .trip-card:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .trip-card .tc-name {
+    display:block; font-size: 0.9375rem; font-weight:700; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .trip-card .tc-dates,
+  .trip-card .tc-source,
+  .trip-card .tc-updated { display:block; font-size: 0.75rem; color:var(--muted); margin-top:2px; }
+  .trip-card.active {
+    border-left:4px solid var(--accent); background:#eaf2ea;
+    padding-left:11px;
+  }
+  .trip-card.active .tc-name::before { content:'✓ '; }
+  .trip-card.active .tc-name { color:var(--accent); }
+
+  .mts-empty {
+    padding:32px 16px; text-align:center; font-size: 0.8125rem;
+    color:var(--muted); line-height:1.5;
+  }
+
+  /* ===== Safe Import review sheet (Task 9 part B-3) ============================
+   *
+   * The review sheet is rendered by src/trips/import-ui.ts as a fixed
+   * bottom-sheet modal (role=dialog, aria-modal=true). The entry point that
+   * opens it is gated by AI_TRIP_IMPORT_ENABLED (false in the production
+   * build); the review/confirm surface itself ships in the bundle regardless.
+   *
+   * Focus trap, Escape, and prefers-reduced-motion are exercised at the
+   * module level by import-ui.test.ts; this stylesheet makes those behaviours
+   * real on a real browser:
+   *   - the sheet uses a single transition on `transform` for the slide-up;
+   *   - `prefers-reduced-motion: reduce` disables that transition (and any
+   *     base motion on the sheet) so users with motion sensitivity see a
+   *     no-op entrance.
+   *
+   * Every class emitted by import-ui.ts (buildReviewSheet / renderErrorSheet
+   * / showStaleWarning / showTripUpdatedBanner / mountImportEntry) is enumerated
+   * here; the markup↔stylesheet contract is covered by import-ui.test.ts.
+   */
+  .import-review {
+    position:fixed; left:0; right:0; bottom:0; z-index:4000;
+    max-height:88vh; overflow-y:auto;
+    background:var(--panel-bg);
+    border-top:1px solid var(--border);
+    border-radius:16px 16px 0 0;
+    box-shadow:0 -6px 24px rgba(0,0,0,.3);
+    padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    transform:translateY(0);
+    transition:transform 160ms ease-out;
+  }
+  .import-review[role="alertdialog"] .irt-error-msg {
+    color:var(--hard); font-size: 0.875rem; line-height:1.5;
+    margin:8px 0 0;
+  }
+  .irt-close, .irt-cancel, .irt-confirm {
+    font-family:inherit;
+    border-radius:9px;
+    padding:10px 16px;
+    font-size: 0.875rem; font-weight:600;
+    cursor:pointer;
+    min-height:44px;
+  }
+  .irt-close {
+    border:1px solid var(--border); background:var(--panel-bg);
+    color:var(--text);
+  }
+  .irt-trip-name { font-size: 1rem; font-weight:600; color:var(--text); margin:4px 0; }
+  .irt-source, .irt-dates, .irt-version {
+    font-size: 0.8125rem; color:var(--muted); margin:2px 0; line-height:1.4;
+  }
+  .irt-counts { font-size: 0.8125rem; margin:8px 0; color:var(--text); line-height:1.45; }
+  .irt-removals { list-style:none; margin:8px 0; padding:0; }
+  .irt-removals li { font-size: 0.8125rem; color:var(--hard); padding:1px 0; }
+  .irt-removals li:first-child { font-weight:600; color:var(--text); margin-bottom:4px; }
+  .irt-warnings { font-size: 0.8125rem; color:var(--hard); background:#fde9c8;
+    border-radius:8px; padding:8px 10px; margin:8px 0; }
+  .irt-current-safe { font-size: 0.8125rem; color:var(--muted); margin:8px 0; line-height:1.45; }
+  .irt-undo {
+    font-size: 0.8125rem; color:var(--text); line-height:1.5;
+    background:#f4f7ef; border:1px solid var(--border);
+    border-radius:8px; padding:10px 12px; margin:10px 0;
+  }
+  .irt-sections { margin:10px 0 0; }
+  .irt-sections [data-section] {
+    border:1px solid var(--border); border-radius:10px;
+    padding:8px 10px; margin:8px 0;
+    background:var(--panel-bg);
+  }
+  .irt-sections [data-section] h3 { font-size: 0.875rem; margin:0 0 6px; color:var(--text); }
+  .irt-sections [data-section] ul { list-style:none; margin:0; padding:0; }
+  .irt-sections [data-section] li { font-size: 0.8125rem; padding:2px 0; color:var(--text); }
+  /* Collapsed (data-expanded="false") sections hide their content; the focus
+     trap and accessibility contract expect the sheet itself to not exhaust
+     the viewport, so collapsed sections collapse visually rather than being
+     removed from the accessibility tree. */
+  .irt-sections [data-section][data-expanded="false"] ul { display:none; }
+  .irt-sections [data-section][data-expanded="true"] ul { display:block; }
+  .irt-buttons {
+    display:flex; gap:10px; margin-top:14px;
+    position:sticky; bottom:0; background:var(--panel-bg);
+    padding-top:6px;
+  }
+  .irt-confirm {
+    flex:1 1 auto;
+    background:#2e6b34; color:#fff; border:none;
+  }
+  .irt-confirm:disabled { opacity:.5; cursor:default; }
+  .irt-confirm.gated {
+    background:#8a5a12; /* the Trail Pro unlock CTA */
+  }
+  .irt-cancel {
+    flex:1 1 auto;
+    background:var(--panel-bg); color:var(--text);
+    border:1px solid var(--border);
+  }
+  .irt-cancel:disabled { opacity:.5; cursor:default; }
+  /* Stale-base second-confirmation alert banner. */
+  .irt-stale {
+    background:#fde9c8; color:#8a5a12;
+    border-radius:8px; padding:8px 10px;
+    font-size: 0.8125rem; margin:8px 0 0;
+  }
+  /* Post-commit "Trip updated — Undo" banner. Status role for screen readers. */
+  .irt-updated {
+    position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    background:#1f3a24; color:#f4f1e8;
+    border-radius:10px; padding:10px 14px;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);
+    z-index:4100; max-width:92vw;
+    display:flex; align-items:center; gap:10px;
+  }
+  .irt-updated-text { font-size: 0.875rem; font-weight:600; }
+  .irt-updated a {
+    color:#bfe6c6; text-decoration:underline;
+    font-size: 0.875rem; font-weight:600; cursor:pointer;
+  }
+
+  /* Reduced motion: opt out of the slide-up transition (and any other motion
+     on the sheet) so users with motion sensitivity see a no-op entrance.
+     The .no-motion class is applied by import-ui.ts when
+     window.matchMedia('(prefers-reduced-motion: reduce)').matches is true.
+     A blanket @media block also covers the case where the matchMedia check
+     ran before a user's reduced-motion preference surfaced. */
+  .import-review.no-motion { transition:none; }
+  .irt-updated.no-motion { transition:none; }
+  @media (prefers-reduced-motion: reduce) {
+    .import-review { transition:none; }
+    .irt-updated { transition:none; }
+  }

@@ -45,7 +45,7 @@
   </div>
   <aside>
     <section id="mode-presets">
-      <h2>Map Mode <span style="font-weight:400;color:var(--muted);font-size:11px">· one-tap layers</span></h2>
+      <h2>Map Mode <span style="font-weight:400;color:var(--muted);font-size:0.6875rem">· one-tap layers</span></h2>
       <div id="mode-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
     </section>
     <section>
@@ -81,7 +81,7 @@
       <label class="layer-row"><input type="checkbox" data-trails="run"><span class="swatch" style="background:repeating-linear-gradient(90deg,#2e8b57 0 5px,transparent 5px 8px)"></span>Trail Running (singletrack)</label>
       <label class="layer-row"><input type="checkbox" data-trails="mtb"><span class="swatch" style="background:repeating-linear-gradient(90deg,#7a3ca8 0 2px,transparent 2px 5px)"></span>Mountain Biking</label>
       <label class="layer-row"><input type="checkbox" data-trails="osm"><span class="swatch" style="background:repeating-linear-gradient(90deg,#1f6f3c 0 6px,transparent 6px 8px,#1f6f3c 8px 9px,transparent 9px 11px)"></span>OSM Trails (OpenTrailMap)</label>
-      <label class="layer-row"><input type="checkbox" checked id="endpoints-toggle"><span style="display:inline-flex;gap:2px"><span style="font-size:12px">🥾</span><span style="font-size:12px">🏁</span></span>Trailheads &amp; termini</label>
+      <label class="layer-row"><input type="checkbox" checked id="endpoints-toggle"><span style="display:inline-flex;gap:2px"><span style="font-size: 0.75rem">🥾</span><span style="font-size: 0.75rem">🏁</span></span>Trailheads &amp; termini</label>
       <div class="legend-row" style="margin-top:8px"><span class="dot" style="background:var(--easy)"></span>Easy</div>
       <div class="legend-row"><span class="dot" style="background:var(--moderate)"></span>Moderate</div>
       <div class="legend-row"><span class="dot" style="background:var(--hard)"></span>Hard</div>
@@ -89,7 +89,7 @@
       <div class="legend-row"><span class="leg-line" style="border-top:2.5px dashed #888"></span>Trail running — dashed (natural-surface singletrack)</div>
       <div class="legend-row"><span class="leg-line" style="border-top:2.5px dotted #888"></span>Mountain biking — dotted (bike-permitted)</div>
       <div class="legend-row"><span class="leg-line" style="border-top:2.5px dashed #1f6f3c"></span>OSM trail — dash-dot (OpenStreetMap path network)</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">Line &amp; marker color show difficulty (graded by length, est.). Line style shows activity. Run/bike layers filter the USGS trail network by surface and bike access. The OSM Trails layer adds the OpenStreetMap foot-path network (as visualized by <a href="https://github.com/osmus/OpenTrailMap" target="_blank" rel="noopener">OpenTrailMap</a>), graded by its <code>sac_scale</code> tag. Community-sourced — may be inaccurate; <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">report a problem</a>. Map data © OpenStreetMap contributors, <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">ODbL</a>.</div>
+      <div style="font-size: 0.6875rem;color:var(--muted);margin-top:6px;line-height:1.4">Line &amp; marker color show difficulty (graded by length, est.). Line style shows activity. Run/bike layers filter the USGS trail network by surface and bike access. The OSM Trails layer adds the OpenStreetMap foot-path network (as visualized by <a href="https://github.com/osmus/OpenTrailMap" target="_blank" rel="noopener">OpenTrailMap</a>), graded by its <code>sac_scale</code> tag. Community-sourced — may be inaccurate; <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">report a problem</a>. Map data © OpenStreetMap contributors, <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">ODbL</a>.</div>
     </section>
     <section>
       <h2>Off-Road / OHV <span id="offroad-status"></span></h2>
@@ -97,7 +97,7 @@
       <div class="legend-row" style="margin-top:8px"><span class="leg-line" style="border-top:3px dashed var(--easy)"></span>Easy — graded dirt/gravel</div>
       <div class="legend-row"><span class="leg-line" style="border-top:3px dashed var(--moderate)"></span>Moderate — high-clearance</div>
       <div class="legend-row"><span class="leg-line" style="border-top:3px dashed var(--hard)"></span>Hard — 4x4 / rough</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">Dashed lines = vehicle tracks (OSM). Difficulty from track grade / 4WD-only tags.</div>
+      <div style="font-size: 0.6875rem;color:var(--muted);margin-top:6px;line-height:1.4">Dashed lines = vehicle tracks (OSM). Difficulty from track grade / 4WD-only tags.</div>
     </section>
     <section>
       <h2>Terrain <span id="slope-status"></span></h2>
@@ -107,7 +107,7 @@
       <div class="legend-row"><span class="dot" style="background:#e23b2e"></span>35–45° — avalanche-prone</div>
       <div class="legend-row"><span class="dot" style="background:#a0263a"></span>46–50° — very steep</div>
       <div class="legend-row"><span class="dot" style="background:#7a2bd0"></span>51°+ — extreme</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">Computed live from elevation tiles. 30–45° is the prime slab-avalanche range. Slopes below 27° are left clear. Zoom in for detail.</div>
+      <div style="font-size: 0.6875rem;color:var(--muted);margin-top:6px;line-height:1.4">Computed live from elevation tiles. 30–45° is the prime slab-avalanche range. Slopes below 27° are left clear. Zoom in for detail.</div>
     </section>
     <section>
       <h2>Weather <span id="radar-status"></span></h2>
@@ -116,7 +116,7 @@
       <div class="legend-row"><span class="dot" style="background:#f2a23a"></span>Moderate</div>
       <div class="legend-row"><span class="dot" style="background:#e23b2e"></span>Heavy</div>
       <div class="legend-row"><span class="dot" style="background:#b026d3"></span>Intense / hail</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4">Live radar (RainViewer). Shows the most recent scan time. Live data — not cached for offline.</div>
+      <div style="font-size: 0.6875rem;color:var(--muted);margin-top:6px;line-height:1.4">Live radar (RainViewer). Shows the most recent scan time. Live data — not cached for offline.</div>
     </section>
     <section id="detail">
       <button id="detail-close" title="Close">✕</button>
@@ -163,13 +163,35 @@
       </div>
     </div>
 
+    <div class="trip-overview" id="trip-overview">
+      <button id="active-trip-button" aria-haspopup="dialog" aria-expanded="false">
+        <span class="atb-label">My Trips</span>
+        <span class="atb-name" id="active-trip-name">No trip yet</span>
+      </button>
+    </div>
+    <div class="my-trips-sheet" id="my-trips-sheet" role="dialog" aria-modal="true"
+         aria-labelledby="my-trips-title" hidden>
+      <div class="mts-head">
+        <h2 id="my-trips-title">My Trips</h2>
+        <button id="my-trips-close" aria-label="Close My Trips">✕</button>
+      </div>
+      <div class="my-trips-list" id="my-trips-list"></div>
+      <!-- Safe Import entry point (Task 9 part B-2). mountImportEntry — reached
+           through window.BlackrowImportUI from src/app/09-trip-import.js — mounts
+           its own hidden file input accepting .json,.blackrowtrip.json and a
+           visible "Import trip" trigger button ONLY when AI_TRIP_IMPORT_ENABLED
+           is true (the production default is false, so the trigger is absent in
+           the shipped build while the implementation remains in the bundle).
+           The container below stays empty when the flag is off. -->
+      <div class="mts-import" id="trip-import-entry"></div>
+    </div>
     <div class="planner-head">
       <h2>Trip Plan</h2>
       <button id="plan-clear" title="Remove all trails">Clear all</button>
     </div>
     <p class="planner-sub">Plan your trip day by day. Add as many days as you like, then click any trailhead on the map (or a custom route) and choose <strong>Add to Plan</strong> — it lands on your active day.</p>
     <div class="planner-head" style="margin:0 0 12px">
-      <span id="plan-saved" style="font-size:12px;color:var(--accent)">✓ Auto-saved on this device</span>
+      <span id="plan-saved" style="font-size: 0.75rem;color:var(--accent)">✓ Auto-saved on this device</span>
       <div style="display:flex;gap:14px;align-items:center">
         <button id="plan-backup" title="Save your whole trip to a file you can back up, move to a new phone, or share">⬇ Back up trip</button>
         <button id="plan-restore" title="Restore a trip from a backup file">Restore</button>
@@ -193,20 +215,20 @@
 
     <div class="wp-section">
       <div class="planner-head" style="margin-top:24px">
-        <h2 style="font-size:17px">📌 My Waypoints <span class="kit-tag" id="wp-count">0</span></h2>
+        <h2 style="font-size: 1.0625rem">📌 My Waypoints <span class="kit-tag" id="wp-count">0</span></h2>
         <div style="display:flex;gap:14px;align-items:center">
           <button id="wp-import" title="Import waypoints from a GPX file">Import GPX</button>
           <button id="wp-export" title="Export waypoints as a GPX file">Export GPX</button>
         </div>
       </div>
       <p class="planner-sub" style="margin-bottom:6px">Spots you’ve marked with the 📌 button on the map. Tap one to zoom to it. Saved on this device.</p>
-      <p id="wp-status" style="margin:0 0 14px;font-size:12px;color:var(--accent);min-height:15px"></p>
+      <p id="wp-status" style="margin:0 0 14px;font-size: 0.75rem;color:var(--accent);min-height:15px"></p>
       <input id="wp-file" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" style="display:none">
       <div class="plan-list" id="wp-list"></div>
     </div>
 
     <div class="trip-kit">
-      <h2 style="margin:0 0 4px;font-size:17px">Trip Kit</h2>
+      <h2 style="margin:0 0 4px;font-size: 1.0625rem">Trip Kit</h2>
       <p class="planner-sub" style="margin-bottom:14px">Pick how you’re going — gear, hazards, and vehicle advice update to match.</p>
       <div class="kit-types" id="kit-types"></div>
       <div class="kit-grid">
@@ -231,9 +253,9 @@
     </div>
 
     <div class="trip-kit" id="privacy-section">
-      <h2 style="margin:0 0 4px;font-size:17px">🔒 Privacy &amp; data</h2>
+      <h2 style="margin:0 0 4px;font-size: 1.0625rem">🔒 Privacy &amp; data</h2>
       <p class="planner-sub" style="margin-bottom:12px">Your location stays on your device. Plans, waypoints, recorded tracks, and saved trails are stored only on this phone — never uploaded. Your live GPS is used on-device to center the map, record, and warn you off-route; it is never sent to a server.</p>
-      <ul style="margin:0 0 12px;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.5">
+      <ul style="margin:0 0 12px;padding-left:18px;font-size: 0.8125rem;color:var(--muted);line-height:1.5">
         <li>The map, land, weather, and forecast layers fetch live data for the area you’re viewing or the point you tap — that reveals <em>what you look at</em> to those data providers, but not where you are.</li>
         <li>Backups and GPX files you export contain precise coordinates — only you choose when to share them.</li>
         <li>If the toggle below is on, the app sends <em>anonymous</em> usage events and crash reports (e.g. “trial started”, “offline download used”) so we can improve it. These never include your location, tracks, plans, or any identity — no profiles, no IP location lookup — and are never sold or shared with advertisers. A Do Not Track / Global Privacy Control signal on your device turns this off automatically.</li>
@@ -241,8 +263,8 @@
       <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share anonymous usage &amp; crash reports (no location, no personal data &mdash; helps us fix bugs)</label>
       <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-striptime"><span></span>Strip timestamps from exported track GPX (hides <em>when</em> you were there)</label>
       <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording with the screen off (background GPS — uses more battery; needs “Always” location, granted the first time you record)</label>
-      <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Delete all my data on this device</button>
-      <p id="privacy-status" style="margin:10px 0 0;font-size:12px;color:var(--accent);min-height:15px"></p>
+      <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size: 0.875rem;font-weight:600;cursor:pointer">Delete all my data on this device</button>
+      <p id="privacy-status" style="margin:10px 0 0;font-size: 0.75rem;color:var(--accent);min-height:15px"></p>
     </div>
   </div>
 </div>
@@ -286,5 +308,43 @@
 
 <!-- Bundled first-party app (src/app/*.js → app.js via scripts/build-app.mjs). -->
 <script src="app.js"></script>
+<!-- Safe Import entry point wiring (Task 9 part B-2). The reservations ESM
+     bundle publishes window.BlackrowImportUI (import-ui.ts) at load; this is
+     a deferred module so the global is not set when app.js first runs. Poll
+     for it the way 00-trip-bridge does for BlackrowTrips. mountImportEntry
+     creates its own hidden file input accepting .json,.blackrowtrip.json and
+     a visible "Import trip" trigger button ONLY when AI_TRIP_IMPORT_ENABLED
+     reads true. The production default is false, so the container stays empty
+     (no entry point) while the implementation still ships in the bundle. -->
+<script>
+  (function () {
+    var TIMEOUT_MS = 15000;
+    function getUI() { return typeof window !== 'undefined' ? window.BlackrowImportUI : null; }
+    function mount() {
+      var container = document.getElementById('trip-import-entry');
+      if (!container) return;
+      var ui = window.BlackrowImportUI;
+      if (!ui || typeof ui.mountImportEntry !== 'function') return;
+      // Visible trigger button only when the flag is on; hidden file input
+      // is always created inside the container. Trigger re-checks the flag
+      // at click time, so a flag flip after mount is honored.
+      ui.mountImportEntry(container);
+    }
+    function awaitUI() {
+      var ui = getUI();
+      if (ui) return Promise.resolve(ui);
+      return new Promise(function (resolve, reject) {
+        var timer = setTimeout(function () { clearInterval(interval); reject(); }, TIMEOUT_MS);
+        var interval = setInterval(function () {
+          var found = getUI();
+          if (found) { clearTimeout(timer); clearInterval(interval); resolve(found); }
+        }, 100);
+      });
+    }
+    function run() { awaitUI().then(mount).catch(function () {}); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+    else run();
+  })();
+</script>
 </body>
 </html>

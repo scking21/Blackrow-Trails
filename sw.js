@@ -2,7 +2,22 @@
  * Lets previously-viewed areas load with no signal (backcountry use). */
 const SHELL_CACHE = 'trail-shell-v7';   // bumped: T-Satellite analytics event wiring
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
-const ASSET_CACHE = 'trail-assets-v1';  // vendored pdf.js / tesseract / jeep-sqlite
+// ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
+// — see isResAsset), NOT user data. It is served cache-first with no revalidation,
+// and activate keeps it across SW updates, so its NAME is the only thing that can
+// force the browser to drop stale bytes. The name therefore tracks the contents:
+// at build time scripts/emit-sw.mjs hashes the vendored asset trees and substitutes
+// the placeholder below, so any vendored update produces a new cache name and the
+// stale bytes are evicted on the next activate. This is deliberately derived, not
+// hand-bumped — the manual discipline failed for this cache (the sql.js WASM fix
+// shipped under a constant `trail-assets-v1` and never reached a cached browser).
+//
+// TRADEOFF: renaming evicts vendored code, so the first online load after an update
+// re-downloads pdf.js / tesseract / jeep-sqlite. That is correct (they are code,
+// not user data), but a user who updates and immediately goes offline loses those
+// vendored features until they are online once. We state it; we do not solve it.
+// TILE_CACHE and DATA_CACHE hold genuine USER DATA and must never be renamed.
+const ASSET_CACHE = 'trail-assets-7dd85ddd2748';  // substituted by scripts/emit-sw.mjs from asset bytes
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
 const MAX_TILES   = 4000;            // shared ceiling with page-side offline region downloads
 
