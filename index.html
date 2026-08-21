@@ -13,17 +13,42 @@
 <body>
 
 <header>
-  <h1>🥾 Blackrow Trails</h1>
+  <h1>
+    <span class="brand-mark" aria-hidden="true"><img src="assets/icons/phosphor/tree-evergreen.svg" alt=""></span>
+    <span>Blackrow Trails</span>
+  </h1>
   <nav>
-    <button class="active" data-tab="map">Map</button>
-    <button data-tab="planner">Planner</button>
-    <button data-tab="reservations">Travel</button>
+    <button class="active" data-tab="map"><img src="assets/icons/phosphor/map-trifold.svg" alt=""><span class="nav-label">Map</span></button>
+    <button data-tab="planner"><img src="assets/icons/phosphor/clipboard-text.svg" alt=""><span class="nav-label">Planner</span><span class="nav-count" aria-live="polite"></span></button>
+    <button data-tab="reservations"><img src="assets/icons/phosphor/car.svg" alt=""><span class="nav-label">Travel</span></button>
   </nav>
   <select id="region-select" title="Jump to region"></select>
 </header>
 
 <div class="tab active" id="tab-map">
-  <div id="map"></div>
+  <section class="ready-hero" aria-labelledby="ready-title">
+    <p class="ready-eyebrow">TRAIL READINESS</p>
+    <h2 id="ready-title">Ready for<br>the trail</h2>
+  </section>
+  <section class="active-trail-card" aria-label="Selected trail">
+    <div class="trail-ring" aria-hidden="true"><img src="assets/icons/phosphor/map-pin.svg" alt=""></div>
+    <div class="active-trail-copy">
+      <p class="active-trail-label">Selected trail</p>
+      <h3 id="ready-trail-name">Treasure Loop Trail</h3>
+      <div class="active-trail-stats" aria-live="polite">
+        <span><img src="assets/icons/phosphor/leaf.svg" alt=""><strong id="ready-trail-diff">Easy</strong></span>
+        <span id="ready-trail-length">2.4 mi</span>
+        <span id="ready-trail-gain">500 ft gain</span>
+        <span id="ready-trail-time">1 hr 18 min</span>
+      </div>
+    </div>
+  </section>
+  <div class="map-card">
+    <div id="map"></div>
+    <button id="layers-sheet-toggle" class="map-options-btn" type="button" aria-controls="map-options" aria-expanded="false">
+      <img src="assets/icons/phosphor/stack.svg" alt=""><span>Map options</span>
+    </button>
+  </div>
   <div id="route-toolbar">
     <div class="rt-row">
       <span class="rt-stat" id="rt-title">New route</span>
@@ -43,7 +68,38 @@
     </div>
     <div id="ts-results"></div>
   </div>
-  <aside>
+  <section class="readiness-panel" aria-label="Hike readiness">
+    <button class="readiness-row" id="ready-offline" type="button">
+      <span class="readiness-icon"><img src="assets/icons/phosphor/download-simple.svg" alt=""></span>
+      <span class="readiness-copy"><strong id="ready-offline-title">Save map offline</strong><small id="ready-offline-detail">Download this view before you leave</small></span>
+      <span class="readiness-state pending" id="ready-offline-state" aria-hidden="true"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
+    </button>
+    <button class="readiness-row" id="ready-emergency" type="button">
+      <span class="readiness-icon"><img src="assets/icons/phosphor/shield-check.svg" alt=""></span>
+      <span class="readiness-copy"><strong>Emergency contacts available</strong><small id="ready-emergency-detail">911 and local contacts ready offline</small></span>
+      <span class="readiness-state"><img src="assets/icons/phosphor/check.svg" alt=""></span>
+    </button>
+    <button class="readiness-row" id="ready-directions" type="button">
+      <span class="readiness-icon"><img src="assets/icons/phosphor/car.svg" alt=""></span>
+      <span class="readiness-copy"><strong>Trailhead directions</strong><small id="ready-directions-detail">Open Treasure Loop trailhead</small></span>
+      <span class="readiness-state pending"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
+    </button>
+    <button class="start-hike-btn" id="ready-start" type="button">
+      <span>Start hike</span><span class="start-hike-arrow"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
+    </button>
+    <button class="change-trail-btn" id="ready-change" type="button" aria-controls="trail-search" aria-expanded="false">Change trail</button>
+  </section>
+  <aside id="map-options">
+    <div class="mobile-sheet-head">
+      <div><span>Map options</span><small>Layers and field tools</small></div>
+      <button id="layers-sheet-close" type="button" aria-label="Close map options"><img src="assets/icons/phosphor/x.svg" alt=""></button>
+    </div>
+    <div class="mobile-map-actions" aria-label="Field tools">
+      <button type="button" data-map-action="dl-area-btn"><img src="assets/icons/phosphor/download-simple.svg" alt=""><span>Offline</span></button>
+      <button type="button" data-map-action="sos-btn"><img src="assets/icons/phosphor/shield-check.svg" alt=""><span>Emergency</span></button>
+      <button type="button" data-map-action="wp-btn"><img src="assets/icons/phosphor/map-pin.svg" alt=""><span>Waypoint</span></button>
+      <button type="button" data-map-action="track-btn"><img src="assets/icons/phosphor/crosshair.svg" alt=""><span>Record</span></button>
+    </div>
     <section id="mode-presets">
       <h2>Map Mode <span style="font-weight:400;color:var(--muted);font-size:0.6875rem">· one-tap layers</span></h2>
       <div id="mode-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
