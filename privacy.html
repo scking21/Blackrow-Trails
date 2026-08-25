@@ -21,7 +21,7 @@
 </head>
 <body>
   <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-08-23</p>
+  <p class="updated">Last updated: 2026-08-24</p>
 
   <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
   account system and shows no ads. Most trip, reservation, and location data
@@ -60,9 +60,17 @@
   provider also receives the IP address and standard request metadata needed for
   an internet connection.</p>
   <p>The app requests location while you use it. If you enable <strong>Keep
-  recording with the screen off</strong>, the app requests background location
-  so that it can continue an active recording. This setting is off by default.
-  You can revoke location access in your device settings.</p>
+  recording while minimized or the screen is off</strong> and then start
+  recording, the Android app starts a location foreground service with an
+  ongoing recording notification. During that active, user-started recording,
+  precise location continues while the app is minimized or the screen is off.
+  This setting is off by default, and recording stops when you pause or stop it.
+  The app does not request <strong>Allow all the time</strong> or Android
+  background-location permission. On Android 13 and later, the app asks for
+  notification permission immediately before starting this service. If you deny
+  it, recording continues, but Android may show the service only under Active
+  apps instead of in the notification drawer. You can revoke location or change
+  notification access in your device settings.</p>
   <p>The camera is used only for the augmented-reality view. The app does not
   save or send camera images.</p>
 
@@ -209,9 +217,15 @@
   <ul>
     <li><strong>Location while in use:</strong> center the map, record or follow a
     route, use the augmented-reality view, and place waypoints.</li>
-    <li><strong>Background location:</strong> optional; requested only if you
-    enable <strong>Keep recording with the screen off</strong>, and used only to
-    continue an active track recording in the background.</li>
+    <li><strong>Screen-off recording:</strong> an optional, user-started location
+    foreground service continues precise location during an active recording
+    while the app is minimized or the screen is off. The app does not request
+    <strong>Allow all the time</strong> or Android background-location
+    permission.</li>
+    <li><strong>Notifications:</strong> on Android 13 and later, requested only
+    when you start an opted-in screen-off recording, so its ongoing service
+    notice can remain in the notification drawer. If denied, recording continues
+    and Android may show the notice only under Active apps.</li>
     <li><strong>Camera:</strong> used only for the augmented-reality view. No
     photos are stored or sent.</li>
   </ul>
