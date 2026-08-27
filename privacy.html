@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Blackrow Trails Privacy Policy</title>
+<title>Blackrow Trails — Privacy Policy</title>
 <style>
   :root { color-scheme: light dark; }
   body { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px;
@@ -20,18 +20,20 @@
 </style>
 </head>
 <body>
-  <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-08-24</p>
+  <h1>Blackrow Trails — Privacy Policy</h1>
+  <p class="updated">Last updated: 2026-07-10</p>
 
-  <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
-  account system and shows no ads. Most trip, reservation, and location data
-  stays on your device. The app contacts third-party services for maps,
-  weather, subscriptions, optional analytics, and features that you choose to
-  open or share, including optional assistant-generated trip transfers. We do
-  not sell personal data or share it with advertisers or data brokers.</p>
+  <p>Blackrow Trails is built to be private by default. Your location and your
+  planning data stay on your device. We do not run servers that collect your
+  personal data, we do not use advertising trackers, and we never sell or share
+  your information — with advertisers, data brokers, or anyone else. To improve
+  the app we collect <strong>anonymous</strong> usage statistics and crash
+  reports (see "Analytics &amp; crash reports" below), which you can turn off
+  at any time.</p>
 
   <h2>What the app stores, and where</h2>
-  <p>The app stores the following data in its local app storage:</p>
+  <p>All of the following is stored <strong>only on your device</strong> (in the
+  app's local storage) and is never uploaded to us or anyone else:</p>
   <ul>
     <li>Your trip plan (trails you've added) and Trip Kit selections</li>
     <li>Waypoints you mark</li>
@@ -40,208 +42,112 @@
     <li>Your map-mode and gear-list preferences</li>
     <li>Travel reservations (flights, hotels, car rentals, trains) you add, and
     any e-ticket or itinerary documents you upload for them</li>
-    <li>Downloaded maps, map caches, membership, trial, reviewer-access, and
-    privacy settings</li>
-    <li>Trip packages awaiting import, including their source provider and
-    integrity metadata</li>
   </ul>
-  <p>Blackrow Trails does not upload this data to a Blackrow account. Data
-  leaves your device only when a feature described below needs a third-party
-  service or when you choose to export, open, or share it.</p>
+  <p>You can remove any single item in the app, or erase <strong>everything</strong>
+  at once with <strong>Planner → Privacy &amp; data → "Delete all my data on this
+  device."</strong></p>
 
   <h2>Location data</h2>
-  <p>The app accesses precise location to center the map, record a track, place
-  a waypoint, point the augmented-reality marker, and warn you when you leave a
-  followed route. Blackrow Trails does not send the raw GPS fix to the developer
-  or to PostHog.</p>
-  <p>When you center the map on your position or request nearby map, trail,
-  parcel, elevation, radar, or weather data, the provider receives the requested
-  map area or point. That area or point can approximate your location. The
-  provider also receives the IP address and standard request metadata needed for
-  an internet connection.</p>
-  <p>The app requests location while you use it. If you enable <strong>Keep
-  recording while minimized or the screen is off</strong> and then start
-  recording, the Android app starts a location foreground service with an
-  ongoing recording notification. During that active, user-started recording,
-  precise location continues while the app is minimized or the screen is off.
-  This setting is off by default, and recording stops when you pause or stop it.
-  The app does not request <strong>Allow all the time</strong> or Android
-  background-location permission. On Android 13 and later, the app asks for
-  notification permission immediately before starting this service. If you deny
-  it, recording continues, but Android may show the service only under Active
-  apps instead of in the notification drawer. You can revoke location or change
-  notification access in your device settings.</p>
-  <p>The camera is used only for the augmented-reality view. The app does not
-  save or send camera images.</p>
+  <ul>
+    <li>By default, the app requests location permission <strong>only while you
+    are using it</strong> ("when in use").</li>
+    <li>If you turn on <strong>"Keep recording with the screen off"</strong>
+    before recording a track, the app will ask for <strong>"Always" / background
+    location</strong> so it can keep recording your track while the app is in the
+    background or the screen is off. This is entirely optional, <strong>off by
+    default</strong>, and used <strong>only</strong> while you are actively
+    recording. You can revoke it at any time in your device settings.</li>
+    <li>In all cases your live GPS position is used <strong>on your device</strong>
+    to center the map, record a track, warn you when you stray off a followed
+    route, point the AR marker, and place waypoints. <strong>Your GPS position is
+    never transmitted to any server.</strong></li>
+  </ul>
 
   <h2>Travel reservations</h2>
-  <p>When you add a reservation by uploading an e-ticket or itinerary PDF or
-  screenshot, the app reads and parses the file on your device. Text extraction
-  and optical character recognition run locally. The original document and the
-  extracted reservation data remain in the app's local database unless you
-  export or share them.</p>
+  <p>When you add a reservation by uploading an e-ticket or itinerary (PDF or
+  screenshot), the file is read and parsed <strong>entirely on your device</strong>
+  — the text extraction and OCR run locally, and the original document is saved
+  only in the app's local storage. <strong>Nothing about your reservations or
+  uploaded documents is sent to us or any third party.</strong> Reservation
+  details and their attached documents are included in the device backup you
+  create (see "Files you export"), and are removed along with everything else by
+  <strong>"Delete all my data on this device."</strong></p>
 
-  <h2>Trip imports and assistant transfers</h2>
-  <p>Trip files that you select for manual import are read and reviewed on your
-  device. Blackrow Trails does not upload a manually selected trip file.</p>
-  <p>If you open a supported Blackrow Trails transfer link created through an AI
-  assistant or another supported provider, the native app stores the one-time
-  transfer token in the device's Keychain or Keystore. The app sends that token
-  to <code>transfer.blackrowtrails.com</code> to claim the trip package,
-  downloads the assistant-generated trip content and source-provider metadata,
-  and sends a lease acknowledgment after the package is saved. The transfer
-  service also receives your IP address and standard request metadata. This
-  flow does not upload your existing Blackrow Trails trips, reservations,
-  tracks, or raw GPS location.</p>
-  <p>The received package is stored in the app's local SQLite database while it
-  awaits your review. Transfer tokens, leases, trip content, trip identifiers,
-  and content hashes are excluded from PostHog analytics. The AI assistant or
-  other provider used to create the package may process the information that
-  you give it under its own privacy policy before the package reaches Blackrow
-  Trails.</p>
-
-  <h2>Maps, weather, and external services</h2>
-  <p>To show live maps and conditions, the app fetches data for the area that
-  you are viewing or the point that you tap from third-party providers:</p>
+  <h2>Network requests (what does leave the device)</h2>
+  <p>To show live maps and conditions, the app fetches data for <strong>the area
+  you are viewing or the point you tap</strong> from third-party providers. These
+  requests reveal <em>what you are looking at</em> (a map region or a tapped
+  coordinate), but they do not include your device's GPS position:</p>
   <ul>
-    <li><strong>Map tiles:</strong> OpenTopoMap, OpenStreetMap, and USGS Topo</li>
-    <li><strong>Elevation tiles:</strong> AWS Terrarium</li>
+    <li><strong>Map tiles:</strong> OpenTopoMap, and AWS Terrarium elevation tiles (for slope shading)</li>
     <li><strong>Public land / parcels:</strong> USGS PAD-US and county/state parcel services (Esri/ArcGIS)</li>
     <li><strong>Trails &amp; features:</strong> USGS National Map, OpenStreetMap/Overpass</li>
-    <li><strong>Weather:</strong> the U.S. National Weather Service for forecasts,
-    RainViewer for radar, and the Iowa Environmental Mesonet as a radar fallback</li>
+    <li><strong>Weather:</strong> the U.S. National Weather Service (api.weather.gov) for tap forecasts, and RainViewer for the precipitation radar overlay</li>
   </ul>
-  <p>When a live source is down or you are offline, the app may reuse data it
-  fetched earlier for the same area. This reuse involves no network request.</p>
-  <p>The app sends a bounding box, tile coordinate, or selected point as needed.
-  It does not add your name, email address, Blackrow account identifier, or raw
-  GPS fix. Each provider receives your IP address and standard request metadata
-  and handles the request under its own privacy policy.</p>
-  <p>If you open directions, permit information, or another external link, the
-  selected website or maps app receives the destination in that link. Blackrow
-  Trails does not control data after another app or website receives it.</p>
+  <p>Each provider handles requests under its own privacy policy. The app sends
+  only the minimum needed (a bounding box or a single tapped point) and adds no
+  identifiers.</p>
 
-  <h2>Usage analytics and crash reports</h2>
-  <p>When analytics is enabled, the app sends limited usage events and redacted
-  error reports to PostHog in the United States at
-  <code>us.i.posthog.com</code>:</p>
+  <h2>Analytics &amp; crash reports</h2>
+  <p>To understand which features are used and to catch bugs, the app sends
+  anonymous usage events (for example: "app opened", "trial started", "offline
+  download used") and error reports to PostHog (hosted in the United States at
+  <code>us.i.posthog.com</code>). This is the only data the app sends that is
+  about the app itself rather than the map area you're viewing:</p>
   <ul>
     <li><strong>What is sent:</strong> which screens and features are used, taps
     on app controls (with all on-screen text and attributes masked), app version
-    and device type, operating system, and technical error details. Each install
-    is identified by a random ID that is not connected to a Blackrow account.</li>
-    <li><strong>Excluded content.</strong> The app removes location-shaped
-    fields, coordinates, tracks, waypoints, routes, plans, place names, transfer
-    codes, trip identifiers, content hashes, and similar values from app events.
-    Recorded tracks, reservations, uploaded documents, exports, and user-entered
-    content are not intentionally included in analytics. Error messages and
-    stack traces are redacted before transmission.</li>
-    <li><strong>Limited profiling.</strong> Session recording is disabled.
-    PostHog person profiles are disabled. Every event requests that PostHog
-    disable IP-based location enrichment. PostHog still receives the network
-    request and may process its IP address to provide its service.</li>
+    and device type, and technical error/crash details. Each install is
+    identified by a random ID that is not linked to your name, email, or any
+    account (the app has no accounts).</li>
+    <li><strong>Never your location.</strong> No GPS positions, coordinates,
+    tracks, waypoints, routes, plans, or place names are ever included — the app
+    strips anything location-shaped from analytics events before they can be
+    sent, as a hard technical guarantee, not just a policy. Every event is also
+    marked to forbid IP-based location lookup on the server.</li>
+    <li><strong>Never your identity.</strong> Recorded tracks, reservations,
+    uploaded documents, exports, and anything you type are never sent. No user
+    profile is built, and session recording/replay is disabled.</li>
     <li><strong>Never for advertising.</strong> This data is used only to make
     product decisions (what to build, fix, or remove). It is <strong>never sold,
     rented, or shared with advertisers or data brokers</strong>, and we show no
     ads.</li>
-    <li><strong>Your choice.</strong> Analytics is on by default unless your
-    device sends a Do Not Track or Global Privacy Control signal. The app shows
-    a notice on first launch. Turn analytics off at any time at
-    <strong>Planner &gt; Privacy &amp; data &gt; Share limited usage &amp; redacted crash
-    reports</strong>. Your choice is stored on your device and takes effect
-    immediately. Deleting local app data rotates the random installation
-    identifier.</li>
+    <li><strong>Your choice.</strong> Analytics is on by default, and we tell
+    you: a one-time notice on first launch says so and offers the off switch
+    right there. Turn it off any time at <strong>Planner → Privacy &amp; data →
+    "Share anonymous usage &amp; crash reports."</strong> The choice is stored
+    on your device and stops all analytics immediately. If your device sends a
+    <strong>Do Not Track</strong> or <strong>Global Privacy Control</strong>
+    signal, analytics starts <strong>off</strong> automatically (your explicit
+    toggle choice always wins). "Delete all my data on this device" also resets
+    the random analytics identifier, unlinking anything sent before.</li>
   </ul>
   <p>PostHog processes this data on our behalf under its own
   <a href="https://posthog.com/privacy">privacy policy</a>.</p>
 
-  <h2>Subscriptions and purchases</h2>
-  <p>Google Play or Apple processes Trail Pro purchases and subscriptions. The
-  app receives product, purchase, receipt, and entitlement status needed to show
-  offers, unlock Trail Pro, and restore a purchase. Promotional and offer codes
-  are entered and processed in the platform-owned Google Play or Apple flow.
-  The app receives the resulting receipt and entitlement status, not your full
-  payment-card or bank-account details. Google or Apple may associate the
-  transaction and code redemption with your store account under its own privacy
-  policy. If analytics is enabled, the app may record that a promotional code
-  was redeemed and the mobile platform used, but not the code itself.</p>
-  <p>A private access code may be provided to Google Play's review team. The app
-  normalizes and hashes that code on the device, compares it with a stored hash,
-  and saves only whether review access was granted. The entered review code is
-  not sent to Blackrow Trails, PostHog, Google Play, or Apple by this check.</p>
-
   <h2>Files you export</h2>
   <p>Backups and GPX exports contain precise coordinates, and recorded-track GPX
   can include timestamps (when you were at each point). These files are created
-  only when you choose to export or share them. The receiving app, person, or
-  service controls the copy after you share it. To omit timestamps from
-  recorded-track GPX files, enable <strong>Strip timestamps from exported track
-  GPX</strong> before exporting.</p>
-
-  <h2>Security</h2>
-  <p>Local data is stored in the operating system's app sandbox. Internet
-  requests made by the app use HTTPS. Native trip-transfer tokens and leases
-  are stored in the device's Keychain or Keystore rather than the trip
-  database. The app limits analytics fields and redacts sensitive values from
-  error reports before transmission. No storage or transmission method can
-  guarantee complete security.</p>
-
-  <h2>Retention and deletion</h2>
-  <p>On-device data remains until you delete it, clear the app's storage in your
-  device settings, or uninstall the app. Use the app's item-level controls to
-  delete individual trips and reservations.</p>
-  <p><strong>Planner &gt; Privacy &amp; data &gt; Delete local field data and
-  settings</strong> clears the app's local settings, waypoints, recorded tracks,
-  saved trails, gear choices, membership state, and analytics identifier. This
-  control does not erase the SQLite trip and reservation database. To remove
-  that database and the app's cached data, clear Blackrow Trails storage in your
-  device settings or uninstall the app.</p>
-  <p>Deleting app data does not delete copies that you previously exported or
-  shared. Google and Apple retain store transaction records under their own
-  policies.</p>
-  <p>A pending assistant transfer token remains in secure device storage until
-  the claim is completed and acknowledged, the transfer is cancelled, or the
-  token is rejected as expired or already used. A received trip package remains
-  in the local SQLite database until it is cancelled or app storage is cleared
-  or the app is uninstalled. Clearing app storage or uninstalling also removes
-  the local review-access flag. It does not delete records retained by Google,
-  Apple, an AI assistant, or the transfer service under their own policies.</p>
-  <p>We retain PostHog analytics only while needed to understand app reliability
-  and feature use, then delete or aggregate data that is no longer needed.
-  Because the app has no account and analytics is not tied to your name or email
-  address, we cannot locate a specific person's past analytics events. Turning
-  analytics off stops future collection. Deleting local app data rotates the
-  random installation identifier.</p>
+  only when <strong>you</strong> choose to export or share them, and they go
+  wherever you send them. If you'd rather not reveal <em>when</em> you were
+  somewhere, enable <strong>"Strip timestamps from exported track GPX"</strong> in
+  Privacy &amp; data before exporting.</p>
 
   <h2>Permissions</h2>
   <ul>
-    <li><strong>Location while in use:</strong> center the map, record or follow a
-    route, use the augmented-reality view, and place waypoints.</li>
-    <li><strong>Screen-off recording:</strong> an optional, user-started location
-    foreground service continues precise location during an active recording
-    while the app is minimized or the screen is off. The app does not request
-    <strong>Allow all the time</strong> or Android background-location
-    permission.</li>
-    <li><strong>Notifications:</strong> on Android 13 and later, requested only
-    when you start an opted-in screen-off recording, so its ongoing service
-    notice can remain in the notification drawer. If denied, recording continues
-    and Android may show the notice only under Active apps.</li>
-    <li><strong>Camera:</strong> used only for the augmented-reality view. No
-    photos are stored or sent.</li>
+    <li><strong>Location (when in use)</strong> — center the map, record/follow, AR, waypoints.</li>
+    <li><strong>Location (always / background)</strong> — optional; requested only
+    if you enable "Keep recording with the screen off," and used only to continue
+    an active track recording in the background.</li>
+    <li><strong>Camera</strong> — only for the AR "point me there" view; no photos are stored or sent.</li>
   </ul>
 
   <h2>Children</h2>
-  <p>Blackrow Trails is a general-audience outdoor app and is not directed to
-  children under 13. If analytics is enabled, the app handles the limited
-  device and usage data described in this policy.</p>
-
-  <h2>Policy changes</h2>
-  <p>We update the date at the top of this policy when the app's data practices
-  or this policy change materially.</p>
+  <p>Blackrow Trails is a general-audience outdoor app and is not directed at
+  children under 13. It collects no personal information; the anonymous usage
+  analytics described above contain no identity or location data.</p>
 
   <h2>Contact</h2>
-  <p>App: Blackrow Trails</p>
-  <p>Privacy questions:
-  <a href="mailto:aggie.king21@gmail.com">aggie.king21@gmail.com</a></p>
+  <p>Questions about this policy: <a href="mailto:aggie.king21@gmail.com">aggie.king21@gmail.com</a></p>
 </body>
 </html>

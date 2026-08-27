@@ -1,6 +1,6 @@
 /* Blackrow Trails service worker — offline app shell + map tile caching.
  * Lets previously-viewed areas load with no signal (backcountry use). */
-const SHELL_CACHE = 'trail-shell-v7';   // bumped: T-Satellite analytics event wiring
+const SHELL_CACHE = 'trail-shell-v8';   // bumped: shell branch no longer captures live-data APIs (see fetch handler)
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -81,11 +81,21 @@ const isTile = (url) =>
 const isCorsTile = (url) => /s3\.amazonaws\.com\/elevation-tiles-prod\//.test(url);
 
 // Trim the tile cache so it can't grow without bound.
+// Evictions run in bounded-parallel chunks: a big offline-region download can
+// leave thousands of keys over the ceiling, and the old strictly-sequential
+// loop held each delete's async overhead end-to-end (~60x slower in the A/B
+// model, scripts/bench-trim-tiles.mjs). Unbounded Promise.all was faster
+// still but can saturate storage I/O on low-end devices mid-session — the
+// chunk cap keeps the trim polite.
+const TRIM_CHUNK = 64;
 async function trimTiles() {
   const cache = await caches.open(TILE_CACHE);
   const keys = await cache.keys();
   if (keys.length <= MAX_TILES) return;
-  for (let i = 0; i < keys.length - MAX_TILES; i++) await cache.delete(keys[i]);
+  const doomed = keys.slice(0, keys.length - MAX_TILES);
+  for (let i = 0; i < doomed.length; i += TRIM_CHUNK) {
+    await Promise.all(doomed.slice(i, i + TRIM_CHUNK).map((k) => cache.delete(k)));
+  }
 }
 
 self.addEventListener('fetch', (e) => {
@@ -157,7 +167,14 @@ self.addEventListener('fetch', (e) => {
   }
 
   // App shell (same-origin + Leaflet CDN).
-  if (req.destination === 'document' || SHELL_ASSETS.some((a) => url.endsWith(a.replace('./', '')))) {
+  // Live-data APIs are NEVER shell assets and must never be captured here:
+  // they are "always fresh" by design (see below), and this branch's prod path
+  // is cache-first, so a captured API response would be pinned stale even while
+  // online. Note SHELL_ASSETS contains './', whose replace() reduces to '' and
+  // `url.endsWith('')` matches EVERY url — without this exclusion the branch
+  // swallows all remaining GETs on the page.
+  const isLiveApi = /services\.arcgis\.com|nationalmap\.gov|api\.weather\.gov|api\.rainviewer\.com|overpass-api\.de|overpass\.kumi\.systems|mesonet\.agron\.iastate\.edu/.test(url);
+  if (!isLiveApi && (req.destination === 'document' || SHELL_ASSETS.some((a) => url.endsWith(a.replace('./', ''))))) {
     e.respondWith((async () => {
       const cache = await caches.open(SHELL_CACHE);
       const fromNet = () => fetch(req).then((res) => { if (res.ok) cache.put(req, res.clone()); return res; });

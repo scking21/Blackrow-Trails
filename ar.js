@@ -22,8 +22,12 @@
   var FOV_KEY = 'trailapp.ar.fov';
 
   function getFov() {
-    var v = parseFloat(localStorage.getItem(FOV_KEY));
-    return (v && v > 20 && v < 120) ? v : DEFAULT_FOV_DEG;
+    // Reads can throw where writes can (Safari private mode, storage-blocked
+    // WebViews) — fall back to the default instead of killing the AR launch.
+    try {
+      var v = parseFloat(localStorage.getItem(FOV_KEY));
+      return (v && v > 20 && v < 120) ? v : DEFAULT_FOV_DEG;
+    } catch (e) { return DEFAULT_FOV_DEG; }
   }
   function setFov(v) { try { localStorage.setItem(FOV_KEY, String(v)); } catch (e) {} }
 

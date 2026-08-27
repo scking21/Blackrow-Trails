@@ -111,8 +111,10 @@ window.Billing = (function () {
   // Purchase a plan. term = 'monthly' | 'yearly'. Resolves true on success.
   async function purchase(term) {
     if (!(await ready())) return false;
-    const o = offerFor(PRODUCTS[term] || PRODUCTS.yearly);
-    if (!o || !o.offer) { console.warn('[Billing] no offer for', term); return false; }
+    const productId = PRODUCTS[term];
+    if (!productId) { console.warn('[Billing] unknown term', term); return false; }
+    const o = offerFor(productId);
+    if (!o || !o.offer) { console.warn('[Billing] no offer for', productId); return false; }
     try {
       const C = api();
       const res = await C.store.order(o.offer);

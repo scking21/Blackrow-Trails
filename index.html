@@ -30,8 +30,8 @@
     <p class="ready-eyebrow">TRAIL READINESS</p>
     <h2 id="ready-title">Ready for<br>the trail</h2>
   </section>
-  <section class="active-trail-card" aria-label="Selected trail">
-    <div class="trail-ring" aria-hidden="true"><img src="assets/icons/phosphor/map-pin.svg" alt=""></div>
+  <section class="active-trail-card" id="ready-trail-card" role="button" tabindex="0" aria-label="Change selected trail" aria-controls="trail-search" aria-expanded="false">
+    <div class="trail-ring" aria-hidden="true"><img src="assets/icons/phosphor/circle-dashed.svg" alt=""></div>
     <div class="active-trail-copy">
       <p class="active-trail-label">Selected trail</p>
       <h3 id="ready-trail-name">Treasure Loop Trail</h3>
@@ -232,13 +232,9 @@
         <button id="my-trips-close" aria-label="Close My Trips">✕</button>
       </div>
       <div class="my-trips-list" id="my-trips-list"></div>
-      <!-- Safe Import entry point (Task 9 part B-2). mountImportEntry — reached
-           through window.BlackrowImportUI from src/app/09-trip-import.js — mounts
-           its own hidden file input accepting .json,.blackrowtrip.json and a
-           visible "Import trip" trigger button ONLY when AI_TRIP_IMPORT_ENABLED
-           is true (the production default is false, so the trigger is absent in
-           the shipped build while the implementation remains in the bundle).
-           The container below stays empty when the flag is off. -->
+      <!-- Safe Import entry point. mountImportEntry is reached through
+           window.BlackrowImportUI and mounts a hidden .json/.blackrowtrip.json
+           picker plus the enabled user-facing import card. -->
       <div class="mts-import" id="trip-import-entry"></div>
     </div>
     <div class="planner-head">
@@ -310,16 +306,16 @@
 
     <div class="trip-kit" id="privacy-section">
       <h2 style="margin:0 0 4px;font-size: 1.0625rem">🔒 Privacy &amp; data</h2>
-      <p class="planner-sub" style="margin-bottom:12px">Your location stays on your device. Plans, waypoints, recorded tracks, and saved trails are stored only on this phone — never uploaded. Your live GPS is used on-device to center the map, record, and warn you off-route; it is never sent to a server.</p>
+      <p class="planner-sub" style="margin-bottom:12px">Your precise GPS fix is processed on this device and is not sent to Blackrow Trails or analytics. Plans, waypoints, recorded tracks, and saved trails stay on this phone unless you export or share them. Map and weather providers receive the area you view, which can match your location when you center the map there.</p>
       <ul style="margin:0 0 12px;padding-left:18px;font-size: 0.8125rem;color:var(--muted);line-height:1.5">
-        <li>The map, land, weather, and forecast layers fetch live data for the area you’re viewing or the point you tap — that reveals <em>what you look at</em> to those data providers, but not where you are.</li>
+        <li>The map, land, weather, and forecast layers send the viewed area or selected point to their data providers. If you center the map on your position, that request can approximate where you are.</li>
         <li>Backups and GPX files you export contain precise coordinates — only you choose when to share them.</li>
-        <li>If the toggle below is on, the app sends <em>anonymous</em> usage events and crash reports (e.g. “trial started”, “offline download used”) so we can improve it. These never include your location, tracks, plans, or any identity — no profiles, no IP location lookup — and are never sold or shared with advertisers. A Do Not Track / Global Privacy Control signal on your device turns this off automatically.</li>
+        <li>If the toggle below is on, the app sends limited usage events and redacted crash reports to PostHog. These include a random installation ID and basic app and device details. App events exclude coordinates, tracks, plans, reservation documents, and user-entered content. Session recording and person profiles are disabled, and events request no IP-based location enrichment. A Do Not Track or Global Privacy Control signal turns analytics off automatically.</li>
       </ul>
-      <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share anonymous usage &amp; crash reports (no location, no personal data &mdash; helps us fix bugs)</label>
+      <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share limited usage &amp; redacted crash reports</label>
       <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-striptime"><span></span>Strip timestamps from exported track GPX (hides <em>when</em> you were there)</label>
-      <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording with the screen off (background GPS — uses more battery; needs “Always” location, granted the first time you record)</label>
-      <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size: 0.875rem;font-weight:600;cursor:pointer">Delete all my data on this device</button>
+      <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording while minimized or the screen is off (uses more battery and a location service with an ongoing recording notification; Android may show it only under Active apps if notifications are off)</label>
+      <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size: 0.875rem;font-weight:600;cursor:pointer">Delete local field data and settings</button>
       <p id="privacy-status" style="margin:10px 0 0;font-size: 0.75rem;color:var(--accent);min-height:15px"></p>
     </div>
   </div>
@@ -351,6 +347,7 @@
       <li><span class="fi">🔔</span><span><strong>Safety Alerts</strong> — wrong-turn audio warnings when you drift off route</span></li>
     </ul>
     <p class="pw-price" id="pw-price">$4.99/mo or $39.99/yr · cancel anytime</p>
+    <p class="pw-error" id="pw-error" role="alert" hidden></p>
     <div class="pw-actions">
       <button class="btn-paid" id="pw-trial">Start 14-day free trial</button>
       <button class="btn-paid secondary" id="pw-subscribe">Subscribe now</button>
@@ -358,20 +355,18 @@
       <button class="pw-dismiss" id="pw-close">Maybe later</button>
     </div>
     <p class="pw-note">Trail Pro is an auto-renewable subscription. Payment is charged to your store account at confirmation of purchase. The free trial converts to a paid subscription after 14 days unless cancelled at least 24 hours before the trial ends. Manage or cancel anytime in your account settings.</p>
-    <p class="pw-legal"><a id="pw-terms" href="https://scking21.github.io/Trail-App/terms.html" target="_blank" rel="noopener">Terms of Use (EULA)</a> · <a id="pw-privacy" href="https://scking21.github.io/Trail-App/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></p>
+    <p class="pw-legal"><a id="pw-terms" href="https://scking21.github.io/Blackrow-Trails/terms.html" target="_blank" rel="noopener">Terms of Use (EULA)</a> · <a id="pw-privacy" href="https://scking21.github.io/Blackrow-Trails/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></p>
   </div>
 </div>
 
 <!-- Bundled first-party app (src/app/*.js → app.js via scripts/build-app.mjs). -->
 <script src="app.js"></script>
-<!-- Safe Import entry point wiring (Task 9 part B-2). The reservations ESM
+<!-- Safe Import entry point wiring. The reservations ESM
      bundle publishes window.BlackrowImportUI (import-ui.ts) at load; this is
      a deferred module so the global is not set when app.js first runs. Poll
      for it the way 00-trip-bridge does for BlackrowTrips. mountImportEntry
      creates its own hidden file input accepting .json,.blackrowtrip.json and
-     a visible "Import trip" trigger button ONLY when AI_TRIP_IMPORT_ENABLED
-     reads true. The production default is false, so the container stays empty
-     (no entry point) while the implementation still ships in the bundle. -->
+     the visible "Import trip" card when AI_TRIP_IMPORT_ENABLED reads true. -->
 <script>
   (function () {
     var TIMEOUT_MS = 15000;

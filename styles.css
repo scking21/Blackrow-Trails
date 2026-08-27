@@ -447,6 +447,10 @@
   .pw-card .pw-feat { color:var(--muted); font-size: 0.84375rem; margin:0 0 4px; }
   .pw-card .pw-hi { font-weight:700; color:#2e6b34; }
   .pw-price { font-size: 0.8125rem; color:var(--muted); margin:14px 0 4px; }
+  .pw-error { font-size: 0.8125rem; color:#b3261e; background:rgba(179,38,30,0.08);
+    border:1px solid rgba(179,38,30,0.25); border-radius:8px; padding:8px 10px;
+    margin:8px 0 0; line-height:1.4; }
+  .pw-error[hidden] { display:none; }
   .pw-actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
   .pw-actions .btn-paid { width:100%; }
   .pw-dismiss { background:none; border:none; color:var(--muted); font-size: 0.8125rem;
@@ -590,11 +594,28 @@
     color:var(--muted); line-height:1.5;
   }
 
+  .mts-import {
+    display:flex; align-items:center; gap:12px; margin:0 12px 16px; padding:14px;
+    border:1px solid #b7d5bd; border-radius:12px; background:#edf6ee;
+  }
+  .mts-import-copy { display:flex; flex:1; min-width:0; flex-direction:column; gap:3px; }
+  .mts-import-copy strong { color:#153f32; font-size: 0.9375rem; line-height:1.2; }
+  .mts-import-sources { color:#2b6d54; font-size: 0.75rem; font-weight:700; }
+  .mts-import-copy small { color:#587269; font-size: 0.6875rem; line-height:1.35; }
+  .mts-import [data-import-trigger] {
+    min-width:104px; min-height:44px; padding:9px 14px; border:0; border-radius:10px;
+    background:#075044; color:#fff; font-family:inherit; font-size: 0.8125rem;
+    font-weight:700; cursor:pointer;
+  }
+  .mts-import [data-import-trigger]:focus-visible {
+    outline:2px solid #177a5d; outline-offset:2px;
+  }
+
   /* ===== Safe Import review sheet (Task 9 part B-3) ============================
    *
    * The review sheet is rendered by src/trips/import-ui.ts as a fixed
    * bottom-sheet modal (role=dialog, aria-modal=true). The entry point that
-   * opens it is gated by AI_TRIP_IMPORT_ENABLED (false in the production
+   * opens it is gated by AI_TRIP_IMPORT_ENABLED (enabled in the production
    * build); the review/confirm surface itself ships in the bundle regardless.
    *
    * Focus trap, Escape, and prefers-reduced-motion are exercised at the
@@ -761,22 +782,22 @@
     }
     header {
       position: relative; z-index: 1400; height: calc(84px + env(safe-area-inset-top));
-      padding: env(safe-area-inset-top) 20px 0; background: rgba(4, 58, 48, .88); border: 0;
-      gap: 12px; overflow: visible;
+      padding: env(safe-area-inset-top) 24px 0; background: rgba(4, 58, 48, .72); border: 0;
+      gap: 10px; overflow: visible; flex-wrap: nowrap;
     }
     header h1 { min-width: 0; margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: -.01em; }
     .brand-mark { width: 34px; height: 34px; flex: 0 0 auto; }
     .brand-mark img { width: 21px; height: 21px; }
     #region-select {
-      margin-left: auto; max-width: 47vw; height: 44px; padding: 0 12px;
-      border: 1px solid rgba(165, 223, 178, .45); border-radius: 14px;
-      background: rgba(5, 70, 58, .88); color: var(--ready-text); font-size: 0.75rem;
+      margin-left: auto; width: 164px; max-width: 42vw; height: 44px; padding: 0 11px;
+      border: 1px solid rgba(165, 223, 178, .42); border-radius: 14px;
+      background: rgba(5, 70, 58, .7); color: var(--ready-text); font-size: 0.75rem;
     }
 
     nav {
-      position: fixed; z-index: 1500; left: 18px; right: 18px; bottom: max(8px, env(safe-area-inset-bottom));
-      height: 66px; padding: 4px; border: 1px solid rgba(209, 239, 216, .58); border-radius: 18px;
-      background: rgba(15, 82, 66, .94); box-shadow: 0 12px 36px rgba(2, 32, 27, .42);
+      position: fixed; z-index: 1500; left: 27px; right: 27px; bottom: max(8px, env(safe-area-inset-bottom));
+      height: 66px; min-height: 66px; padding: 4px; border: 1px solid rgba(209, 239, 216, .58); border-radius: 18px;
+      background: rgba(15, 82, 66, .88); box-shadow: 0 12px 36px rgba(2, 32, 27, .36);
     }
     nav button {
       position: relative; flex: 1; min-width: 0; height: 56px; min-height: 56px; padding: 5px 8px;
@@ -790,94 +811,104 @@
 
     .tab { min-height: 0; }
     #tab-map.active {
-      display: block; position: relative; padding: 0 20px calc(94px + env(safe-area-inset-bottom));
+      display: block; position: relative; padding: 0 27px calc(82px + env(safe-area-inset-bottom));
       overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
     }
-    .ready-hero { display: block; padding: 23px 2px 16px; }
-    .ready-eyebrow { margin: 0 0 8px; color: var(--mint-300); font-size: 0.625rem; font-weight: 800; letter-spacing: .19em; }
+    .ready-hero { display: block; padding: 0 0 17px; }
+    .ready-eyebrow { display: none; }
     .ready-hero h2 {
-      margin: 0; color: var(--ready-text); font-size: clamp(44px, 12.6vw, 58px); font-weight: 530;
-      line-height: .98; letter-spacing: -.055em;
+      margin: 0; color: var(--ready-text); font-size: clamp(46px, 12.3vw, 54px); font-weight: 450;
+      line-height: 1.02; letter-spacing: -.05em;
     }
 
     .active-trail-card {
-      display: flex; align-items: center; gap: 15px; margin-bottom: 14px; padding: 16px;
-      min-height: 96px; border: 1px solid rgba(190, 232, 198, .55); border-radius: 18px;
-      background: rgba(18, 92, 72, .72); box-shadow: 0 12px 28px rgba(2, 43, 34, .2);
+      display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 12px 14px;
+      min-height: 76px; border: 1px solid rgba(190, 232, 198, .58); border-radius: 17px;
+      background: rgba(18, 92, 72, .64); box-shadow: 0 12px 28px rgba(2, 43, 34, .18); cursor: pointer;
     }
     .trail-ring {
-      display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; flex: 0 0 auto;
       border-radius: 50%; background: #b8e8b8; color: var(--forest-900); box-shadow: 0 8px 18px rgba(0, 37, 29, .28);
     }
-    .trail-ring img { width: 29px; height: 29px; }
+    .trail-ring img { display: block; width: 27px; height: 27px; }
     .active-trail-copy { min-width: 0; }
-    .active-trail-label { margin: 0 0 2px; color: #a7d8b4; font-size: 0.625rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
-    .active-trail-copy h3 { margin: 0 0 9px; color: #fff; font-size: 1.25rem; line-height: 1.15; letter-spacing: -.02em; }
-    .active-trail-stats { display: flex; flex-wrap: wrap; gap: 5px 0; color: #d9eedc; font-size: 0.6875rem; }
+    .active-trail-label { display: none; }
+    .active-trail-copy h3 { margin: 0 0 7px; color: #fff; font-size: 1.125rem; line-height: 1.15; letter-spacing: -.02em; }
+    .active-trail-stats { display: flex; flex-wrap: nowrap; gap: 4px 0; color: #d9eedc; font-size: 0.6875rem; }
     .active-trail-stats span { display: inline-flex; align-items: center; white-space: nowrap; }
-    .active-trail-stats span + span::before { content: ""; width: 1px; height: 13px; margin: 0 8px; background: rgba(210, 237, 216, .43); }
+    .active-trail-stats span + span::before { content: ""; width: 1px; height: 13px; margin: 0 7px; background: rgba(210, 237, 216, .43); }
     .active-trail-stats img { width: 15px; height: 15px; margin-right: 4px; filter: invert(85%) sepia(17%) saturate(839%) hue-rotate(77deg); }
     .active-trail-stats strong { font-weight: 650; }
 
     .map-card {
-      display: block; position: relative; height: min(33vh, 298px); min-height: 266px; overflow: hidden;
+      display: block; position: relative; height: 249px; min-height: 249px; overflow: hidden;
       border: 1px solid rgba(222, 243, 224, .72); border-radius: 18px; background: #dbe5cf;
       box-shadow: 0 16px 32px rgba(1, 37, 29, .25);
     }
     #map { width: 100%; height: 100%; min-height: 0; filter: saturate(.72) sepia(.08) contrast(.96); }
-    .map-card .leaflet-control-zoom { border: 0; box-shadow: 0 6px 18px rgba(12, 49, 36, .24); }
+
+    /* The 249px map is sized for a phone. A tablet runs the same stack on a
+     * screen half again as tall, so the leftover became a band of background
+     * below the cards -- let the map take that slack instead, and widen the
+     * gutters so the column is not a phone layout stretched across glass. */
+    @media (min-width: 768px) {
+      .map-card { height: clamp(249px, 44vh, 640px); }
+      #tab-map.active { padding-right: 48px; padding-left: 48px; }
+    }
+    .map-card .leaflet-control-zoom { display: flex; flex-direction: column; gap: 7px; border: 0; box-shadow: none; }
     .map-card .leaflet-control-zoom a {
-      display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; line-height: 42px;
-      border: 0; color: var(--forest-900); background: rgba(248, 252, 246, .95); font-size: 1.4375rem;
+      display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; line-height: 34px;
+      border: 0; border-radius: 50% !important; color: var(--forest-900); background: rgba(248, 252, 246, .95); font-size: 1.25rem;
     }
     .map-card .leaflet-control-zoom a:first-child { border-radius: 50% 50% 0 0; }
     .map-card .leaflet-control-zoom a:last-child { border-radius: 0 0 50% 50%; }
     .map-card .leaflet-top.leaflet-left { left: auto; right: 8px; }
-    #locate-btn { right: 12px !important; bottom: 12px !important; width: 44px !important; height: 44px !important; border: 0 !important; background: rgba(248, 252, 246, .96) !important; }
+    #locate-btn { right: 12px !important; bottom: 12px !important; width: 36px !important; height: 36px !important; border: 0 !important; background: rgba(248, 252, 246, .96) !important; }
     #dl-area-btn, #sos-btn, #wp-btn, #track-btn, #tools-btn, #sat-btn { display: none !important; }
     .map-options-btn {
       display: flex; position: absolute; z-index: 1000; left: 12px; bottom: 12px; align-items: center; gap: 7px;
-      min-height: 42px; padding: 0 13px; border: 0; border-radius: 21px; background: rgba(248, 252, 246, .96);
+      min-height: 36px; padding: 0 11px; border: 0; border-radius: 18px; background: rgba(248, 252, 246, .92);
       color: var(--forest-900); box-shadow: 0 5px 16px rgba(12, 49, 36, .2); font: 700 0.6875rem inherit;
     }
     .map-options-btn img { width: 18px; height: 18px; }
 
     .readiness-panel {
-      display: block; margin-top: 12px; padding: 8px 14px 11px; color: #073d34;
-      border: 1px solid rgba(255, 255, 255, .72); border-radius: 18px;
-      background: var(--ready-panel); box-shadow: 0 18px 38px rgba(1, 37, 29, .25);
+      display: block; margin-top: 7px; padding: 8px 14px; color: #f7fbf8;
+      border: 1px solid rgba(209, 239, 216, .62); border-radius: 18px;
+      background: rgba(30, 104, 78, .74); box-shadow: 0 18px 38px rgba(1, 37, 29, .24);
     }
     .readiness-row {
-      display: flex; align-items: center; width: 100%; min-height: 56px; gap: 11px; padding: 7px 0;
-      border: 0; border-bottom: 1px solid rgba(8, 76, 61, .14); background: transparent; color: inherit; text-align: left;
+      display: flex; align-items: center; width: 100%; min-height: 46px; gap: 11px; padding: 4px 0;
+      border: 0; border-bottom: 1px solid rgba(209, 239, 216, .25); background: transparent; color: inherit; text-align: left;
       font-family: inherit; cursor: pointer;
     }
     .readiness-icon {
       display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; flex: 0 0 auto;
-      border-radius: 50%; background: var(--forest-800); color: #fff;
+      border-radius: 50%; background: rgba(0, 70, 53, .88); color: #fff;
     }
     .readiness-icon img { width: 20px; height: 20px; filter: invert(98%); }
     .readiness-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
     .readiness-copy strong { font-size: 0.875rem; line-height: 1.18; letter-spacing: -.01em; }
-    .readiness-copy small { color: #31715e; font-size: 0.6875rem; line-height: 1.25; }
+    .readiness-copy small { color: #d0ead5; font-size: 0.6875rem; line-height: 1.25; }
     .readiness-state {
       display: flex; align-items: center; justify-content: center; width: 31px; height: 31px; flex: 0 0 auto;
-      border-radius: 10px; background: #cfe8d0; border: 1px solid #abd5b4;
+      border-radius: 10px; background: rgba(70, 139, 98, .32); border: 1px solid rgba(174, 222, 183, .42);
     }
-    .readiness-state.pending { background: #dfefdf; }
-    .readiness-state img { width: 17px; height: 17px; }
+    .readiness-state.pending { background: rgba(34, 105, 78, .38); }
+    .readiness-state img { width: 17px; height: 17px; filter: invert(88%) sepia(21%) saturate(573%) hue-rotate(72deg); }
     .start-hike-btn {
-      display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 52px; margin-top: 10px;
-      padding: 0 5px 0 22px; border: 0; border-radius: 17px; background: var(--forest-950); color: #fff;
-      font: 750 1.1875rem inherit; letter-spacing: -.02em; box-shadow: 0 8px 18px rgba(3, 57, 46, .26); cursor: pointer;
+      display: flex; position: relative; align-items: center; justify-content: center; width: 100%; min-height: 52px; margin-top: 10px;
+      padding: 0 54px; border: 1px solid rgba(150, 210, 160, .68); border-radius: 26px; background: rgba(0, 61, 48, .94); color: #fff;
+      font-family: inherit; font-size: 1.1875rem; font-weight: 750; letter-spacing: -.02em;
+      box-shadow: 0 8px 18px rgba(3, 57, 46, .26); cursor: pointer;
     }
     .start-hike-arrow {
-      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 13px;
-      background: var(--forest-700);
+      display: flex; position: absolute; right: 4px; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 18px;
+      background: rgba(67, 139, 91, .9);
     }
     .start-hike-arrow img { width: 27px; height: 27px; filter: invert(92%) sepia(10%) saturate(800%) hue-rotate(72deg); }
     .change-trail-btn {
-      display: block; min-height: 44px; margin: 4px auto -5px; border: 0; background: transparent;
+      display: none; min-height: 44px; margin: 4px auto -5px; border: 0; background: transparent;
       color: var(--forest-800); font: 700 0.8125rem inherit; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
     }
 
