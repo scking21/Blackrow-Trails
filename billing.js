@@ -108,21 +108,29 @@ window.Billing = (function () {
     return { availablePackages };
   }
 
-  // Purchase a plan. term = 'monthly' | 'yearly'. Resolves true on success.
-  async function purchase(term) {
-    if (!(await ready())) return false;
+  async function orderPlan(term) {
+    if (!(await ready())) return 'unavailable';
     const productId = PRODUCTS[term];
-    if (!productId) { console.warn('[Billing] unknown term', term); return false; }
+    if (!productId) { console.warn('[Billing] unknown term', term); return 'unavailable'; }
     const o = offerFor(productId);
-    if (!o || !o.offer) { console.warn('[Billing] no offer for', productId); return false; }
+    if (!o || !o.offer) { console.warn('[Billing] no offer for', productId); return 'unavailable'; }
     try {
       const C = api();
       const res = await C.store.order(o.offer);
-      if (res && res.isError) { if (res.code !== C.ErrorCode.PAYMENT_CANCELLED) console.warn('[Billing] order failed', res.message); return false; }
-    } catch (e) { console.warn('[Billing] purchase failed', e); return false; }
+      if (res && res.isError) {
+        if (res.code === C.ErrorCode.PAYMENT_CANCELLED) return 'cancelled';
+        console.warn('[Billing] order failed', res.message);
+        return 'unavailable';
+      }
+    } catch (e) { console.warn('[Billing] purchase failed', e); return 'unavailable'; }
     // Ownership flips asynchronously via receiptUpdated; give it a moment.
     for (let i = 0; i < 20 && !isPro(); i++) await new Promise(r => setTimeout(r, 150));
-    return applyOwned();
+    return applyOwned() ? 'redeemed' : 'opened';
+  }
+
+  // Purchase a plan. term = 'monthly' | 'yearly'. Resolves true on success.
+  async function purchase(term) {
+    return (await orderPlan(term)) === 'redeemed';
   }
 
   // Restore purchases (App Store / Play require a visible "Restore" path).
@@ -133,5 +141,34 @@ window.Billing = (function () {
     return applyOwned();
   }
 
-  return { isAvailable, configure, refresh, getOfferings, purchase, restore, PRODUCTS, ENTITLEMENT_ID, platform };
+  // Open the platform-owned promotional-code flow. Apple provides a native
+  // offer-code redemption sheet; Google Play accepts subscription promo codes
+  // inside the normal purchase sheet under Payment method > Redeem code.
+  // Entitlement still comes only from the store receipt — this never accepts
+  // or validates developer-defined codes inside the app.
+  async function redeemOfferCode() {
+    if (!(await ready())) return 'unavailable';
+    const C = api();
+    if (platform === 'ios') {
+      const adapter = C.store.adapters && C.store.adapters.findReady
+        ? C.store.adapters.findReady(C.Platform.APPLE_APPSTORE)
+        : null;
+      if (!adapter || typeof adapter.presentCodeRedemptionSheet !== 'function') return 'unavailable';
+      try {
+        await adapter.presentCodeRedemptionSheet();
+        // The native callback means the sheet was presented, not that the user
+        // finished redeeming. receiptUpdated will apply ownership afterward.
+        return 'opened';
+      } catch (e) {
+        console.warn('[Billing] offer code redemption failed', e);
+        return 'unavailable';
+      }
+    }
+    if (platform === 'android') {
+      return orderPlan('monthly');
+    }
+    return 'unavailable';
+  }
+
+  return { isAvailable, configure, refresh, getOfferings, purchase, restore, redeemOfferCode, PRODUCTS, ENTITLEMENT_ID, platform };
 })();
