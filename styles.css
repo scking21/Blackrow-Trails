@@ -86,7 +86,11 @@
   .tab.active { display: flex; }
 
   /* Map tab layout. .map-card wraps #map, so the card is the flex child that
-     has to grow; #map only fills it. */
+     has to grow; #map only fills it. The tab itself must be positioned: it is
+     what anchors the floating map chrome (#trail-search, #route-toolbar), which
+     otherwise resolves against the viewport and lands on top of the header,
+     swallowing clicks on the Map and Planner nav buttons. */
+  #tab-map.active { position: relative; }
   .map-card { display: flex; flex: 1; min-width: 0; }
   #map { flex: 1; }
   aside {
