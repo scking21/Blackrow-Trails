@@ -1,6 +1,15 @@
 /* Blackrow Trails service worker — offline app shell + map tile caching.
  * Lets previously-viewed areas load with no signal (backcountry use). */
-const SHELL_CACHE = 'trail-shell-v8';   // bumped: shell branch no longer captures live-data APIs (see fetch handler)
+// SHELL_CACHE holds the app shell (index.html / styles.css / the app bundles —
+// see SHELL_ASSETS). Like ASSET_CACHE it is served cache-first and survives SW
+// updates, and it is refilled ONLY by install's addAll — which a browser runs
+// only when sw.js's own bytes change. A hand-bumped name therefore pins every
+// returning visitor to the old shell whenever a shell file moves without a bump.
+// That is not hypothetical: the map fix deployed 2026-09-03 changed styles.css
+// but not sw.js, so every returning browser kept serving the broken stylesheet
+// out of 'trail-shell-v8'. Derived from the shell bytes for exactly the reason
+// ASSET_CACHE is — the manual discipline has now failed for both caches.
+const SHELL_CACHE = 'trail-shell-39fe75dbc518';  // substituted by scripts/emit-sw.mjs from shell bytes
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -182,7 +191,8 @@ self.addEventListener('fetch', (e) => {
         // Dev: network-first so edits show on reload; fall back to cache if offline.
         try { return await fromNet(); } catch { return (await cache.match(req, { ignoreSearch: true })) || Response.error(); }
       }
-      // Prod: cache-first with background refresh.
+      // Prod: cache-first. A hit is returned as-is and is never revalidated, so
+      // the shell changes only when install repopulates a NEW SHELL_CACHE name.
       const hit = await cache.match(req, { ignoreSearch: true });
       return hit || (await fromNet().catch(() => null)) || Response.error();
     })());
