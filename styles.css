@@ -85,7 +85,9 @@
   .tab { flex: 1; display: none; min-height: 0; }
   .tab.active { display: flex; }
 
-  /* Map tab layout */
+  /* Map tab layout. .map-card wraps #map, so the card is the flex child that
+     has to grow; #map only fills it. */
+  .map-card { display: flex; flex: 1; min-width: 0; }
   #map { flex: 1; }
   aside {
     width: 300px;
