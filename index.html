@@ -28,7 +28,7 @@
 <div class="tab active" id="tab-map">
   <section class="ready-hero" aria-labelledby="ready-title">
     <p class="ready-eyebrow">TRAIL READINESS</p>
-    <h2 id="ready-title">Ready for<br>the trail</h2>
+    <h2 id="ready-title">Your next hike</h2>
   </section>
   <section class="active-trail-card" id="ready-trail-card" role="button" tabindex="0" aria-label="Change selected trail" aria-controls="trail-search" aria-expanded="false">
     <div class="trail-ring" aria-hidden="true"><img src="assets/icons/phosphor/circle-dashed.svg" alt=""></div>
@@ -76,7 +76,7 @@
     </button>
     <button class="readiness-row" id="ready-emergency" type="button">
       <span class="readiness-icon"><img src="assets/icons/phosphor/shield-check.svg" alt=""></span>
-      <span class="readiness-copy"><strong>Emergency contacts available</strong><small id="ready-emergency-detail">911 and local contacts ready offline</small></span>
+      <span class="readiness-copy"><strong>Emergency contacts</strong><small id="ready-emergency-detail">Numbers saved on this device</small></span>
       <span class="readiness-state"><img src="assets/icons/phosphor/check.svg" alt=""></span>
     </button>
     <button class="readiness-row" id="ready-directions" type="button">
@@ -85,7 +85,7 @@
       <span class="readiness-state pending"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
     </button>
     <button class="start-hike-btn" id="ready-start" type="button">
-      <span>Start hike</span><span class="start-hike-arrow"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
+      <span>View trail</span><span class="start-hike-arrow"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
     </button>
     <button class="change-trail-btn" id="ready-change" type="button" aria-controls="trail-search" aria-expanded="false">Change trail</button>
   </section>
@@ -185,39 +185,27 @@
         <div class="stat"><div class="label" id="d-label-land">Land</div><div class="value" id="d-land"></div></div>
       </div>
       <p class="desc" id="d-desc"></p>
+      <div class="trail-detail-actions">
+      <a class="directions-btn" id="d-directions" target="_blank" rel="noopener">🧭 Directions via OSM</a>
+      <button class="directions-btn" id="d-ar" style="display:none">Point toward trailhead</button>
+      <button class="plan-btn" id="d-add-plan">＋ Add to Plan</button>
+      </div>
       <div id="d-access" class="access-block" style="display:none">
-        <div class="access-row" id="d-road-row"><span class="access-ico">🚗</span><div><div class="access-lab">Road access</div><div class="access-val" id="d-road"></div></div></div>
-        <div class="access-row" id="d-parking-row"><span class="access-ico">🅿️</span><div><div class="access-lab">Parking</div><div class="access-val" id="d-parking"></div><a class="access-link" id="d-parking-map" rel="noopener">📍 Open parking in maps</a></div></div>
+        <div class="access-row" id="d-road-row"><span class="access-ico"><img src="assets/icons/phosphor/car.svg" alt=""></span><div><div class="access-lab">Road access</div><div class="access-val" id="d-road"></div></div></div>
+        <div class="access-row" id="d-parking-row"><span class="access-ico"><img src="assets/icons/phosphor/map-pin.svg" alt=""></span><div><div class="access-lab">Parking</div><div class="access-val" id="d-parking"></div><a class="access-link" id="d-parking-map" rel="noopener">Open parking in maps</a></div></div>
       </div>
       <div id="d-emergency" class="emergency-block" style="display:none">
-        <div class="emergency-h">🆘 Emergency contacts <span id="d-emergency-area"></span></div>
+        <div class="emergency-h">Emergency contacts <span id="d-emergency-area"></span></div>
         <div id="d-emergency-list"></div>
-        <div class="emergency-note">Tap to dial (works offline). Verify numbers against official sources before relying on them.</div>
+        <div class="emergency-note">Numbers saved on this device. Calls require a connection. Verify contact details before relying on them.</div>
       </div>
-      <a class="directions-btn" id="d-directions" target="_blank" rel="noopener">🧭 Directions via OSM</a>
-      <button class="directions-btn" id="d-ar" style="display:none;margin-top:8px;background:#2b4a31;border:none;cursor:pointer;width:100%">📷 AR — point me there</button>
-      <button class="plan-btn" id="d-add-plan">＋ Add to Plan</button>
+
     </section>
   </aside>
 </div>
 
 <div class="tab" id="tab-planner">
   <div class="planner-wrap">
-
-    <div class="membership-card" id="membership-card">
-      <h2>Membership <span class="plan-badge free" id="plan-badge">Free</span></h2>
-      <p class="mc-sub" id="plan-status">You're on the free plan — Trail Discovery and basic real-time tracking.</p>
-      <div class="mc-actions" id="plan-actions"></div>
-    </div>
-
-    <div class="membership-card" id="route-planner-card">
-      <h2>🗺️ Custom Route Planner <span class="lock-pill" id="planner-lock">PAID</span></h2>
-      <p class="mc-sub">Draw, edit, and snap your own routes to the digital trail network — your custom hikes, your way.</p>
-      <div class="mc-actions">
-        <button class="btn-paid" id="route-new">＋ Create New Plan</button>
-        <button class="btn-paid secondary" id="route-edit">✎ Edit Route</button>
-      </div>
-    </div>
 
     <div class="trip-overview" id="trip-overview">
       <button id="active-trip-button" aria-haspopup="dialog" aria-expanded="false">
@@ -241,11 +229,12 @@
       <h2>Trip Plan</h2>
       <button id="plan-clear" title="Remove all trails">Clear all</button>
     </div>
-    <p class="planner-sub">Plan your trip day by day. Add as many days as you like, then click any trailhead on the map (or a custom route) and choose <strong>Add to Plan</strong> — it lands on your active day.</p>
+    <p class="planner-sub">Choose a trail, then add it to a day.</p>
+    <button id="plan-add-trail" class="btn-paid planner-add-trail" type="button">Add a trail</button>
     <div class="planner-head" style="margin:0 0 12px">
       <span id="plan-saved" style="font-size: 0.75rem;color:var(--accent)">✓ Auto-saved on this device</span>
       <div style="display:flex;gap:14px;align-items:center">
-        <button id="plan-backup" title="Save your whole trip to a file you can back up, move to a new phone, or share">⬇ Back up trip</button>
+        <button id="plan-backup" title="Save your whole trip to a file you can back up, move to a new phone, or share">Back up trip</button>
         <button id="plan-restore" title="Restore a trip from a backup file">Restore</button>
       </div>
     </div>
@@ -260,20 +249,32 @@
     <div class="trip-meta-row">
       <label for="trip-start">Trip start date</label>
       <input id="trip-start" type="date">
-      <button id="plan-share" class="btn-paid" title="Share your day-by-day itinerary">📤 Share trip plan</button>
+      <button id="plan-share" class="btn-paid" title="Share your day-by-day itinerary">Share trip plan</button>
     </div>
     <div id="plan-days"></div>
-    <button id="plan-add-day" class="btn-paid secondary" style="margin-top:6px">＋ Add another day</button>
+    <button id="plan-add-day" class="btn-paid secondary" style="margin-top:6px">Add another day</button>
+
+    <details class="planner-disclosure">
+      <summary>Draw a custom route</summary>
+    <div class="membership-card" id="route-planner-card">
+      <h2>Custom routes <span class="lock-pill" id="planner-lock">PAID</span></h2>
+      <p class="mc-sub">Draw a route on the map or edit a saved route.</p>
+      <div class="mc-actions">
+        <button class="btn-paid" id="route-new">Draw route</button>
+        <button class="btn-paid secondary" id="route-edit">Edit route</button>
+      </div>
+    </div>
+    </details>
 
     <div class="wp-section">
       <div class="planner-head" style="margin-top:24px">
-        <h2 style="font-size: 1.0625rem">📌 My Waypoints <span class="kit-tag" id="wp-count">0</span></h2>
+        <h2 style="font-size: 1.0625rem">My Waypoints <span class="kit-tag" id="wp-count">0</span></h2>
         <div style="display:flex;gap:14px;align-items:center">
           <button id="wp-import" title="Import waypoints from a GPX file">Import GPX</button>
           <button id="wp-export" title="Export waypoints as a GPX file">Export GPX</button>
         </div>
       </div>
-      <p class="planner-sub" style="margin-bottom:6px">Spots you’ve marked with the 📌 button on the map. Tap one to zoom to it. Saved on this device.</p>
+      <p class="planner-sub" style="margin-bottom:6px">Places you have marked on the map. Tap one to view it. Saved on this device.</p>
       <p id="wp-status" style="margin:0 0 14px;font-size: 0.75rem;color:var(--accent);min-height:15px"></p>
       <input id="wp-file" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" style="display:none">
       <div class="plan-list" id="wp-list"></div>
@@ -281,31 +282,40 @@
 
     <div class="trip-kit">
       <h2 style="margin:0 0 4px;font-size: 1.0625rem">Trip Kit</h2>
-      <p class="planner-sub" style="margin-bottom:14px">Pick how you’re going — gear, hazards, and vehicle advice update to match.</p>
+      <p class="planner-sub" style="margin-bottom:14px">Choose an activity for your gear checklist. Review regional hazards and access before leaving.</p>
       <div class="kit-types" id="kit-types"></div>
       <div class="kit-grid">
         <div class="kit-card">
-          <h3>🎒 Recommended Gear <span class="kit-tag" id="kit-gear-tag"></span></h3>
+          <h3>Gear checklist <span class="kit-tag" id="kit-gear-tag"></span></h3>
           <div id="kit-gear"></div>
         </div>
         <div class="kit-card">
-          <h3>⚠️ Watch Out For <span class="kit-tag" id="kit-region"></span></h3>
+          <h3>Regional hazards <span class="kit-tag" id="kit-region"></span></h3>
           <div id="kit-hazards"></div>
         </div>
         <div class="kit-card" id="kit-rig-card">
-          <h3>🚙 Vehicle / Rig <span class="kit-tag" id="kit-terrain"></span></h3>
+          <h3>Road access <span class="kit-tag" id="kit-terrain"></span></h3>
           <div id="kit-rig"></div>
         </div>
       </div>
       <div class="kit-card permit-card">
-        <h3>📋 Permits &amp; Passes <span class="kit-tag" id="kit-permit-area"></span></h3>
+        <h3>Permits &amp; Passes <span class="kit-tag" id="kit-permit-area"></span></h3>
         <div id="kit-permits"></div>
       </div>
       <p class="kit-note">Hazards are based on the region of your planned trails (or the current map view) and are general guidance — always check local conditions, closures, and seasonal warnings. Gear ticks are saved on this device.</p>
     </div>
 
+    <details class="planner-disclosure">
+      <summary>Membership</summary>
+    <div class="membership-card" id="membership-card">
+      <h2>Membership <span class="plan-badge free" id="plan-badge">Free</span></h2>
+      <p class="mc-sub" id="plan-status">You're on the free plan — Trail Discovery and basic real-time tracking.</p>
+      <div class="mc-actions" id="plan-actions"></div>
+    </div>
+    </details>
+
     <div class="trip-kit" id="privacy-section">
-      <h2 style="margin:0 0 4px;font-size: 1.0625rem">🔒 Privacy &amp; data</h2>
+      <h2 style="margin:0 0 4px;font-size: 1.0625rem">Privacy &amp; data</h2>
       <p class="planner-sub" style="margin-bottom:12px">Your precise GPS fix is processed on this device and is not sent to Blackrow Trails or analytics. Plans, waypoints, recorded tracks, and saved trails stay on this phone unless you export or share them. Map and weather providers receive the area you view, which can match your location when you center the map there.</p>
       <ul style="margin:0 0 12px;padding-left:18px;font-size: 0.8125rem;color:var(--muted);line-height:1.5">
         <li>The map, land, weather, and forecast layers send the viewed area or selected point to their data providers. If you center the map on your position, that request can approximate where you are.</li>

@@ -775,6 +775,19 @@
     font-size: 0.625rem; font-weight: 800;
   }
 
+  .planner-disclosure { margin: 18px 0; border: 1px solid var(--line); border-radius: 12px; background: #f8faf6; }
+  .planner-disclosure > summary { padding: 12px 16px; min-height: 44px; box-sizing: border-box; cursor: pointer; font-weight: 650; }
+  .planner-disclosure .membership-card { margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; }
+  .planner-add-trail { width: 100%; margin: 0 0 18px; }
+  .planner-wrap button, .planner-wrap input[type="date"], .planner-wrap summary { min-height: 44px; }
+  #plan-backup, #plan-restore, #wp-import, #wp-export { padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--accent); font: inherit; font-size: .875rem; cursor: pointer; }
+  .plan-totals[hidden], #plan-backup[hidden], #plan-share[hidden], #plan-clear[hidden] { display: none !important; }
+  .trail-detail-actions { display: grid; gap: 8px; margin: 14px 0; }
+  .trail-detail-actions .directions-btn, .trail-detail-actions .plan-btn { margin: 0; min-height: 44px; border-radius: 10px; box-sizing: border-box; }
+  #d-ar { width: 100%; border: 1px solid var(--accent); color: var(--accent); background: #fff; font: inherit; cursor: pointer; padding: 10px 12px; }
+  .access-ico img { width: 22px; height: 22px; }
+  .planner-wrap button:focus-visible, .planner-disclosure > summary:focus-visible, #d-ar:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
   @media (max-width: 760px), (pointer: coarse) {
     html, body { min-height: 100%; background: var(--forest-950); }
     body {
@@ -823,7 +836,7 @@
     .ready-hero { display: block; padding: 0 0 17px; }
     .ready-eyebrow { display: none; }
     .ready-hero h2 {
-      margin: 0; color: var(--ready-text); font-size: clamp(46px, 12.3vw, 54px); font-weight: 450;
+      margin: 0; color: var(--ready-text); font-size: clamp(1.75rem, 7.5vw, 2rem); font-weight: 600;
       line-height: 1.02; letter-spacing: -.05em;
     }
 
@@ -847,7 +860,7 @@
     .active-trail-stats strong { font-weight: 650; }
 
     .map-card {
-      display: block; position: relative; height: 249px; min-height: 249px; overflow: hidden;
+      display: block; position: relative; height: clamp(280px, 36vh, 420px); min-height: 280px; overflow: hidden;
       border: 1px solid rgba(222, 243, 224, .72); border-radius: 18px; background: #dbe5cf;
       box-shadow: 0 16px 32px rgba(1, 37, 29, .25);
     }
@@ -967,4 +980,12 @@
     @media (prefers-reduced-motion: reduce) {
       #map-options { transition: none; }
     }
+  }
+
+  @media (max-width: 360px) {
+    header { height: calc(132px + env(safe-area-inset-top)); padding: calc(12px + env(safe-area-inset-top)) 16px 12px; flex-wrap: wrap; gap: 8px; }
+    header h1 { width: 100%; }
+    #region-select { width: 100%; max-width: 100%; margin-left: 0; }
+    .trail-ring { display: none; }
+    .active-trail-stats { flex-wrap: wrap; row-gap: 6px; }
   }

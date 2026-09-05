@@ -17,7 +17,7 @@
   var DEFAULT_FOV_DEG = 55;          // GUESS. Calibrate per device/lens/orientation.
   var HEADING_ALPHA = 0.15;          // compass smoothing (new-sample weight); lower = calmer
   var COURSE_SPEED_THRESHOLD = 1.0;  // m/s (~3.6 km/h) — above this, trust GPS course
-  var ARRIVE_RADIUS_M = 15;          // "you're here" radius
+  var ARRIVE_RADIUS_M = 15;          // proximity radius, including reported GPS accuracy
   var MARKER_VERTICAL = 0.42;        // fixed vertical placement (0=top,1=bottom) for v1
   var FOV_KEY = 'trailapp.ar.fov';
 
@@ -47,24 +47,34 @@
     var rawCompass = null, smoothCompass = null;
     var arrived = false, debug = false, raf = 0;
     var stream = null, watchId = null;
+    var cameraError = null, gpsError = null;
 
     // ---- DOM ----------------------------------------------------------------
     var ov = el('div', 'ar-overlay');
     var video = el('video', 'ar-video'); video.setAttribute('playsinline', ''); video.setAttribute('muted', ''); video.muted = true; video.autoplay = true;
     var marker = el('div', 'ar-marker');
-    marker.innerHTML = '<div class="ar-pin">📍</div><div class="ar-card"><div class="ar-label"></div><div class="ar-dist"></div></div>';
+    marker.innerHTML = '<div class="ar-pin"><img src="assets/icons/phosphor/map-pin.svg" alt=""></div><div class="ar-card"><div class="ar-label"></div><div class="ar-dist"></div></div>';
     var chevron = el('div', 'ar-chevron'); chevron.innerHTML = '<div class="ar-chev-arrow"></div><div class="ar-chev-text"></div>';
     var hud = el('div', 'ar-hud');
     var banner = el('div', 'ar-banner'); banner.textContent = 'Starting camera…';
+    var confidence = el('div', 'ar-confidence');
+    var accuracy = el('div', 'ar-accuracy'); accuracy.textContent = 'GPS accuracy unavailable';
+    var proximity = el('div', 'ar-proximity'); proximity.hidden = true;
+    proximity.setAttribute('role', 'status');
+    var qualifier = el('div', 'ar-qualifier'); qualifier.textContent = 'Direction to a point, not a trail route.';
+    confidence.appendChild(proximity);
+    confidence.appendChild(accuracy);
+    confidence.appendChild(qualifier);
 
-    var btnClose = el('button', 'ar-btn ar-close'); btnClose.textContent = '✕'; btnClose.title = 'Close AR';
-    var btnDebug = el('button', 'ar-btn ar-debug'); btnDebug.textContent = 'ⓘ'; btnDebug.title = 'Debug / calibrate';
+    var btnClose = el('button', 'ar-btn ar-close'); btnClose.textContent = '✕'; btnClose.title = 'Close AR'; btnClose.setAttribute('aria-label', 'Close AR');
+    var btnDebug = el('button', 'ar-btn ar-debug'); btnDebug.textContent = 'ⓘ'; btnDebug.title = 'Calibrate compass'; btnDebug.setAttribute('aria-label', 'Calibrate compass');
 
     ov.appendChild(video);
     ov.appendChild(chevron);
     ov.appendChild(marker);
     ov.appendChild(banner);
     ov.appendChild(hud);
+    ov.appendChild(confidence);
     ov.appendChild(btnClose);
     ov.appendChild(btnDebug);
     document.body.appendChild(ov);
@@ -86,7 +96,8 @@
         video.srcObject = stream;
         banner.textContent = 'Waiting for GPS & compass…';
       } catch (e) {
-        banner.textContent = 'Camera unavailable — ' + (e && e.message ? e.message : 'permission denied');
+        cameraError = 'Camera unavailable — ' + (e && e.message ? e.message : 'permission denied');
+        banner.textContent = cameraError;
       }
 
       // Orientation permission (iOS 13+ needs an explicit request from a gesture)
@@ -103,7 +114,12 @@
       // GPS
       if (navigator.geolocation) {
         watchId = navigator.geolocation.watchPosition(onPos, function (e) {
-          banner.textContent = 'GPS error — ' + (e && e.message ? e.message : 'denied');
+          gpsError = 'GPS error — ' + (e && e.message ? e.message : 'denied');
+          banner.textContent = gpsError;
+          banner.style.display = 'block';
+          pos = null; gpsAcc = null;
+          marker.style.display = 'none'; chevron.style.display = 'none';
+          schedule();
         }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
       } else {
         banner.textContent = 'Geolocation not available on this device.';
@@ -113,6 +129,7 @@
     }
 
     function onPos(p) {
+      gpsError = null;
       pos = { latitude: p.coords.latitude, longitude: p.coords.longitude };
       gpsAcc = p.coords.accuracy;
       gpsSpeed = (p.coords.speed != null && !isNaN(p.coords.speed)) ? p.coords.speed : null;
@@ -146,7 +163,10 @@
 
     function render() {
       raf = 0;
-      if (!pos) { setHud(); return; }
+      accuracy.textContent = Number.isFinite(gpsAcc) && gpsAcc > 0
+        ? 'GPS accuracy ±' + Math.ceil(gpsAcc) + ' m'
+        : 'GPS accuracy unavailable';
+      if (!pos) { proximity.hidden = true; proximity.textContent = ''; setHud(); return; }
 
       var bearingToTarget = Geo.bearing(pos, target);
       var dist = Geo.distance(pos, target);
@@ -155,7 +175,10 @@
         courseSpeedThreshold: COURSE_SPEED_THRESHOLD
       });
 
-      if (chosen.source === 'none') {
+      if (cameraError || gpsError) {
+        banner.style.display = 'block';
+        banner.textContent = cameraError || gpsError;
+      } else if (chosen.source === 'none') {
         banner.style.display = 'block';
         banner.textContent = 'Point the phone around to get a compass fix…';
       } else {
@@ -187,12 +210,13 @@
         }
       }
 
-      // Arrival
-      if (!arrived && dist <= ARRIVE_RADIUS_M) {
+      // Reported accuracy is an estimate, so describe proximity rather than arrival.
+      var near = Number.isFinite(dist) && dist >= 0 &&
+        Number.isFinite(gpsAcc) && gpsAcc > 0 && dist + gpsAcc <= ARRIVE_RADIUS_M;
+      proximity.hidden = !near;
+      proximity.textContent = near ? 'Near ' + label : '';
+      if (near && !arrived) {
         arrived = true;
-        banner.style.display = 'block';
-        banner.textContent = '✓ You\'ve arrived at ' + label;
-        banner.classList.add('arrived');
         if (typeof onArrive === 'function') { try { onArrive(); } catch (e) {} }
       }
 
@@ -243,7 +267,7 @@
       '.ar-overlay{position:fixed;inset:0;z-index:3000;background:#000;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}' +
       '.ar-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}' +
       '.ar-marker{position:absolute;transform:translate(-50%,-100%);text-align:center;pointer-events:none;transition:left .08s linear}' +
-      '.ar-pin{font-size:38px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}' +
+      '.ar-pin{line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}.ar-pin img{width:38px;height:38px;filter:invert(1)}' +
       '.ar-card{display:inline-block;margin-top:2px;background:rgba(20,40,25,.85);color:#fff;border-radius:10px;padding:6px 10px;backdrop-filter:blur(4px)}' +
       '.ar-label{font-size:14px;font-weight:600}' +
       '.ar-dist{font-size:12px;opacity:.85;margin-top:1px}' +
@@ -254,11 +278,12 @@
       '@keyframes arpulse{0%,100%{transform:translateX(0);opacity:.85}50%{transform:translateX(4px);opacity:1}}' +
       '.ar-chevron.left .ar-chev-arrow{animation-name:arpulseL}@keyframes arpulseL{0%,100%{transform:translateX(0);opacity:.85}50%{transform:translateX(-4px);opacity:1}}' +
       '.ar-banner{position:absolute;left:50%;top:env(safe-area-inset-top,12px);transform:translateX(-50%);margin-top:12px;background:rgba(0,0,0,.62);color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;max-width:80%;text-align:center}' +
-      '.ar-banner.arrived{background:rgba(46,107,52,.95);font-weight:600}' +
+      '.ar-confidence{position:absolute;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);padding:10px 12px;background:rgba(0,0,0,.8);color:#fff;border-radius:10px;font-size:13px;pointer-events:none}' +
+      '.ar-proximity{font-weight:700;margin-bottom:4px}.ar-qualifier{font-size:12px;margin-top:4px;line-height:1.4}' +
       '.ar-btn{position:absolute;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(4px)}' +
       '.ar-close{top:calc(env(safe-area-inset-top,12px) + 10px);right:14px}' +
       '.ar-debug{bottom:calc(env(safe-area-inset-bottom,12px) + 14px);right:14px;font-size:20px}' +
-      '.ar-hud{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,12px) + 14px);display:none;background:rgba(0,0,0,.7);color:#cfe;border-radius:10px;padding:10px 12px;font-size:12px;min-width:190px;font-variant-numeric:tabular-nums}' +
+      '.ar-hud{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom,12px) + 190px);display:none;background:rgba(0,0,0,.7);color:#cfe;border-radius:10px;padding:10px 12px;font-size:12px;min-width:190px;font-variant-numeric:tabular-nums}' +
       '.ar-row{display:flex;justify-content:space-between;gap:14px;padding:1px 0}.ar-row b{color:#fff}' +
       '.ar-fov{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}' +
       '.ar-fov button{width:26px;height:26px;border-radius:6px;border:1px solid #4a6;background:#143;color:#fff;font-size:15px;cursor:pointer}' +
