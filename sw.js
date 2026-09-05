@@ -64,7 +64,9 @@ self.addEventListener('install', (e) => {
       // The shell is a single offline unit. Let addAll reject the install if
       // any required asset cannot be cached; a partially installed shell must
       // never activate.
-      .then((c) => c.addAll(SHELL_ASSETS))
+      // A new shell cache must not inherit still-fresh HTTP-cache bytes from
+      // the previous release (new HTML with old JavaScript breaks the UI).
+      .then((c) => c.addAll(SHELL_ASSETS.map(url => new Request(url, { cache: 'reload' }))))
       .then(() => self.skipWaiting())
   );
 });
