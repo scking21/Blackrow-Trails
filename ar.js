@@ -53,6 +53,8 @@
     var arrived = false, debug = false, raf = 0;
     var stream = null, watchId = null;
     var cameraError = null, gpsError = null, compassError = null;
+    // origin: the mapped-trail point the route drawing is anchored to, or null.
+    var snap = { origin: null, since: 0, fixes: 0, lastAt: 0 };
 
     // ---- DOM ----------------------------------------------------------------
     var ov = el('div', 'ar-overlay');
@@ -72,6 +74,7 @@
     proximity.setAttribute('role', 'status');
     var FLAT_QUALIFIER = 'Approximate mapped trail · flat-ground estimate. Follow trail signs and check the map.';
     var TERRAIN_QUALIFIER = 'Approximate mapped trail · terrain-adjusted estimate. Follow trail signs and check the map.';
+    var ALIGNED_NOTE = ' Overlay aligned to mapped trail. Your actual position may be beside it.';
     var terrain = routeMode ? (window.TrailTerrain || (window.TrailTerrain = createTerrainLoader())) : null;
     var qualifier = el('div', 'ar-qualifier'); qualifier.textContent = routeMode ? FLAT_QUALIFIER : 'Direction to a point, not a trail route.';
     confidence.appendChild(proximity);
@@ -148,6 +151,7 @@
       if (navigator.geolocation) {
         watchId = navigator.geolocation.watchPosition(onPos, function (e) {
           gpsError = 'GPS error — ' + (e && e.message ? e.message : 'denied');
+          clearSnap();
           banner.textContent = gpsError;
           banner.style.display = 'block';
           pos = null; gpsAcc = null;
@@ -161,13 +165,34 @@
       schedule();
     }
 
+    // Route drawing may anchor to the mapped trail when the fix sits just beside it,
+    // so GPS wander does not swim the line sideways. Only the projection origin moves;
+    // proximity, freshness and every other decision keep the raw fix.
+    function clearSnap() { snap.origin = null; snap.since = 0; snap.fixes = 0; snap.lastAt = 0; }
+    function updateSnap(previousAt) {
+      if (previousAt && positionAt - previousAt > 15000) clearSnap();
+      var match = Geo.nearestOnLines(lines, pos);
+      var usable = !!match && !match.ambiguous && Number.isFinite(gpsAcc) && gpsAcc > 0;
+      if (snap.origin) {
+        if (usable && match.distance <= Math.min(1.5 * gpsAcc, 15)) snap.origin = match; else clearSnap();
+        return;
+      }
+      if (!usable || match.distance > Math.min(gpsAcc, 10)) { clearSnap(); return; }
+      if (!snap.fixes) { snap.since = positionAt; snap.fixes = 1; }
+      else if (positionAt !== snap.lastAt) snap.fixes++;
+      snap.lastAt = positionAt;
+      if (snap.fixes >= 2 && positionAt - snap.since >= 2000) snap.origin = match;
+    }
+
     function onPos(p) {
       if (closed) return;
+      var previousAt = positionAt;
       positionAt = p.timestamp || Date.now();
       gpsError = null;
       pos = { latitude: p.coords.latitude, longitude: p.coords.longitude };
       declination = Geo.declination(pos.latitude, pos.longitude, new Date(positionAt));
       gpsAcc = p.coords.accuracy;
+      if (routeMode) updateSnap(previousAt);
       // Route heights come from terrain tiles around the fix. Loading stays out of
       // rendering; a finished load just triggers another render.
       if (terrain) terrain.ensure(pos.latitude, pos.longitude).then(schedule, schedule);
@@ -327,7 +352,7 @@
       if (!problem) {
         // Camera direction must use the compass, never walking course: hikers can
         // look sideways while moving. Pitch moves the ground relative to the camera.
-        var drawn = Geo.projectTrailDetail(lines, pos, trueCompass(), beta - 90, ov.clientWidth, ov.clientHeight, fovDeg,
+        var drawn = Geo.projectTrailDetail(lines, snap.origin || pos, trueCompass(), beta - 90, ov.clientWidth, ov.clientHeight, fovDeg,
           function (latitude, longitude) { return Geo.sampleTerrain(latitude, longitude, terrain.gridAt); });
         var d = drawn.d;
         terrainUsed = drawn.terrain && !!d;
@@ -335,7 +360,7 @@
         problem = d ? '' : 'No mapped trail within 100 m in this direction. Turn toward the trail or check the map.';
         if (d) reportSuccess();
       }
-      qualifier.textContent = terrainUsed ? TERRAIN_QUALIFIER : FLAT_QUALIFIER;
+      qualifier.textContent = (terrainUsed ? TERRAIN_QUALIFIER : FLAT_QUALIFIER) + (!problem && snap.origin ? ALIGNED_NOTE : '');
       banner.textContent = problem || label;
       banner.style.display = 'block';
       setHud(null, null, trueCompass());
@@ -351,6 +376,7 @@
         row('Relative', proj ? proj.relative.toFixed(0) + '°' : '—') +
         row('Distance', dist == null ? '—' : Geo.formatDistance(dist)) +
         row('GPS acc', gpsAcc == null ? '—' : '±' + gpsAcc.toFixed(0) + ' m') +
+        row('Trail alignment offset', snap.origin ? snap.origin.distance.toFixed(1) + ' m' : '—') +
         '<div class="ar-fov"><span>FOV ' + fovDeg.toFixed(0) + '°</span>' +
         '<button data-fov="-1">−</button><button data-fov="1">+</button>' +
         '<span class="ar-fov-hint">calibrate so marker matches reality</span></div>';

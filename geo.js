@@ -98,6 +98,41 @@
     });
   }
 
+  // Nearest point on the trail lines to a position, in the local planar frame
+  // projectTrail uses. Returns { latitude, longitude, distance, ambiguous } or null.
+  // ambiguous: another stretch of trail (a separate part, or one at least 30 m away
+  // along the line, like the far leg of a switchback) lies within 5 m of the best
+  // match, so anchoring to it could hop between branches.
+  function nearestOnLines(lines, position) {
+    if (!lines || !lines.length || !Number.isFinite(position.latitude) || !Number.isFinite(position.longitude)) return null;
+    var cosLat = Math.cos(toRad(position.latitude)), candidates = [];
+    function local(c) {
+      return [toRad(angularDelta(position.longitude, c[0])) * R_EARTH * cosLat, toRad(c[1] - position.latitude) * R_EARTH];
+    }
+    lines.forEach(function (line, part) {
+      var along = 0;
+      for (var i = 1; i < line.length; i++) {
+        var a = local(line[i - 1]), b = local(line[i]);
+        var dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy, len = Math.sqrt(len2);
+        var t = len2 ? Math.max(0, Math.min(1, -(a[0] * dx + a[1] * dy) / len2)) : 0;
+        var e = a[0] + dx * t, n = a[1] + dy * t;
+        candidates.push({ part: part, along: along + len * t, e: e, n: n, distance: Math.hypot(e, n) });
+        along += len;
+      }
+    });
+    if (!candidates.length) return null;
+    var best = candidates.reduce(function (m, c) { return c.distance < m.distance ? c : m; });
+    var ambiguous = candidates.some(function (c) {
+      return (c.part !== best.part || Math.abs(c.along - best.along) >= 30) && c.distance <= best.distance + 5;
+    });
+    return {
+      latitude: position.latitude + toDeg(best.n / R_EARTH),
+      longitude: position.longitude + toDeg(best.e / (R_EARTH * cosLat)),
+      distance: best.distance,
+      ambiguous: ambiguous
+    };
+  }
+
   // AWS Terrarium terrain-RGB tiles, sampled at one zoom (~16 m/px at 33 deg N).
   var TERRAIN_ZOOM = 13, TERRAIN_SIZE = 256;
 
@@ -331,7 +366,7 @@
     trailLines: trailLines, projectTrail: projectTrail,
     backCameraHeading: backCameraHeading, declination: declination,
     decodeTerrarium: decodeTerrarium, terrainTiles: terrainTiles, sampleTerrain: sampleTerrain,
-    projectTrailDetail: projectTrailDetail,
+    projectTrailDetail: projectTrailDetail, nearestOnLines: nearestOnLines,
     R_EARTH: R_EARTH,
     toRad: toRad, toDeg: toDeg,
     norm360: norm360,
