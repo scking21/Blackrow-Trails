@@ -70,7 +70,10 @@
     var accuracy = el('div', 'ar-accuracy'); accuracy.textContent = 'GPS accuracy unavailable';
     var proximity = el('div', 'ar-proximity'); proximity.hidden = true;
     proximity.setAttribute('role', 'status');
-    var qualifier = el('div', 'ar-qualifier'); qualifier.textContent = routeMode ? 'Approximate mapped trail · flat-ground estimate. Follow trail signs and check the map.' : 'Direction to a point, not a trail route.';
+    var FLAT_QUALIFIER = 'Approximate mapped trail · flat-ground estimate. Follow trail signs and check the map.';
+    var TERRAIN_QUALIFIER = 'Approximate mapped trail · terrain-adjusted estimate. Follow trail signs and check the map.';
+    var terrain = routeMode ? (window.TrailTerrain || (window.TrailTerrain = createTerrainLoader())) : null;
+    var qualifier = el('div', 'ar-qualifier'); qualifier.textContent = routeMode ? FLAT_QUALIFIER : 'Direction to a point, not a trail route.';
     confidence.appendChild(proximity);
     confidence.appendChild(accuracy);
     confidence.appendChild(qualifier);
@@ -165,6 +168,9 @@
       pos = { latitude: p.coords.latitude, longitude: p.coords.longitude };
       declination = Geo.declination(pos.latitude, pos.longitude, new Date(positionAt));
       gpsAcc = p.coords.accuracy;
+      // Route heights come from terrain tiles around the fix. Loading stays out of
+      // rendering; a finished load just triggers another render.
+      if (terrain) terrain.ensure(pos.latitude, pos.longitude).then(schedule, schedule);
       schedule();
     }
 
@@ -312,6 +318,7 @@
       accuracy.textContent = Number.isFinite(gpsAcc) && gpsAcc > 0
         ? 'GPS accuracy ±' + Math.ceil(gpsAcc) + ' m' : 'GPS accuracy unavailable';
       routePath.setAttribute('d', '');
+      var terrainUsed = false;
       var angle = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
       var problem = cameraError || compassError || gpsError || sensorProblem();
       if (!problem && (!Number.isFinite(gpsAcc) || gpsAcc <= 0 || gpsAcc > 25)) problem = 'GPS too uncertain for trail overlay. Move to an open area.';
@@ -320,11 +327,15 @@
       if (!problem) {
         // Camera direction must use the compass, never walking course: hikers can
         // look sideways while moving. Pitch moves the ground relative to the camera.
-        var d = Geo.projectTrail(lines, pos, trueCompass(), beta - 90, ov.clientWidth, ov.clientHeight, fovDeg);
+        var drawn = Geo.projectTrailDetail(lines, pos, trueCompass(), beta - 90, ov.clientWidth, ov.clientHeight, fovDeg,
+          function (latitude, longitude) { return Geo.sampleTerrain(latitude, longitude, terrain.gridAt); });
+        var d = drawn.d;
+        terrainUsed = drawn.terrain && !!d;
         routePath.setAttribute('d', d);
         problem = d ? '' : 'No mapped trail within 100 m in this direction. Turn toward the trail or check the map.';
         if (d) reportSuccess();
       }
+      qualifier.textContent = terrainUsed ? TERRAIN_QUALIFIER : FLAT_QUALIFIER;
       banner.textContent = problem || label;
       banner.style.display = 'block';
       setHud(null, null, trueCompass());
@@ -365,6 +376,54 @@
       if (ov.parentNode) ov.parentNode.removeChild(ov);
     }
   };
+
+  // Decoded zoom-13 terrain grids for the camera overlay, shared across launches.
+  // Images use the slope layer's CORS URL, so the service worker's tile cache (and
+  // offline area downloads) serve them without a network.
+  function createTerrainLoader() {
+    var URL_ROOT = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/';
+    var MAX_GRIDS = 16, RETRY_MS = 30000;
+    var grids = new Map(), pending = new Map(), failedAt = new Map();
+    function load(tile) {
+      var key = tile.z + '/' + tile.x + '/' + tile.y;
+      if (grids.has(key)) {
+        var grid = grids.get(key);
+        grids.delete(key); grids.set(key, grid);   // keep tiles around the hiker newest
+        return Promise.resolve(grid);
+      }
+      if (pending.has(key)) return pending.get(key);
+      // A GPS fix arrives about every second; don't re-request a missing tile each time.
+      if (Date.now() - (failedAt.has(key) ? failedAt.get(key) : -Infinity) < RETRY_MS) return Promise.resolve(null);
+      var loading = new Promise(function (resolve) {
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+          try {
+            var canvas = document.createElement('canvas'); canvas.width = canvas.height = 256;
+            var ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, 256, 256);
+            resolve(window.Geo.decodeTerrarium(ctx.getImageData(0, 0, 256, 256).data));
+          } catch (e) { resolve(null); }
+        };
+        img.onerror = function () { resolve(null); };
+        img.src = URL_ROOT + key + '.png';
+      }).then(function (decoded) {
+        pending.delete(key);
+        if (!decoded) { failedAt.set(key, Date.now()); return null; }
+        grids.set(key, decoded);
+        if (grids.size > MAX_GRIDS) grids.delete(grids.keys().next().value);
+        return decoded;
+      });
+      pending.set(key, loading);
+      return loading;
+    }
+    return {
+      // Every tile the 100 m projection radius needs, including bilinear neighbours.
+      ensure: function (latitude, longitude) {
+        return Promise.all(window.Geo.terrainTiles(latitude, longitude, latitude, longitude, 110).map(load));
+      },
+      gridAt: function (z, x, y) { return grids.get(z + '/' + x + '/' + y) || null; }
+    };
+  }
 
   // ---- helpers --------------------------------------------------------------
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }

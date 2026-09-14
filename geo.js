@@ -98,24 +98,81 @@
     });
   }
 
-  // Local flat-ground approximation, camera 1.5m above ground. No terrain claims.
+  // AWS Terrarium terrain-RGB tiles, sampled at one zoom (~16 m/px at 33 deg N).
+  var TERRAIN_ZOOM = 13, TERRAIN_SIZE = 256;
+
+  // Elevations in meters from a tile's RGBA pixels: R*256 + G + B/256 - 32768.
+  function decodeTerrarium(rgba) {
+    var count = rgba.length / 4, out = new Float32Array(count);
+    for (var i = 0; i < count; i++) out[i] = rgba[i * 4] * 256 + rgba[i * 4 + 1] + rgba[i * 4 + 2] / 256 - 32768;
+    return out;
+  }
+
+  // Global Web Mercator pixel position [x, y] at zoom z with 256 px tiles.
+  function mercatorPixel(latitude, longitude, z) {
+    var scale = TERRAIN_SIZE * Math.pow(2, z);
+    var s = Math.sin(toRad(Math.max(-85.0511, Math.min(85.0511, latitude))));
+    return [(longitude + 180) / 360 * scale, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * scale];
+  }
+
+  // Terrain tiles covering a lat/lon box grown by marginMeters, plus a two-pixel
+  // halo so bilinear sampling at the box edge has its neighbours.
+  function terrainTiles(south, west, north, east, marginMeters) {
+    var z = TERRAIN_ZOOM, n = Math.pow(2, z), m = marginMeters || 0;
+    var dLat = m / 111320, dLon = m / (111320 * Math.cos(toRad((south + north) / 2)));
+    var a = mercatorPixel(north + dLat, west - dLon, z), b = mercatorPixel(south - dLat, east + dLon, z);
+    var x0 = Math.floor((a[0] - 2) / TERRAIN_SIZE), x1 = Math.floor((b[0] + 2) / TERRAIN_SIZE);
+    var y0 = Math.max(0, Math.floor((a[1] - 2) / TERRAIN_SIZE)), y1 = Math.min(n - 1, Math.floor((b[1] + 2) / TERRAIN_SIZE));
+    var tiles = [];
+    for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) tiles.push({ z: z, x: ((x % n) + n) % n, y: y });
+    return tiles;
+  }
+
+  // Bilinear ground elevation (meters) between pixel centres, reading neighbours
+  // across tile seams. gridAt(z, x, y) returns a decoded tile or null; any missing
+  // or non-finite pixel makes the whole sample null rather than a guess.
+  function sampleTerrain(latitude, longitude, gridAt) {
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    var z = TERRAIN_ZOOM, n = Math.pow(2, z), px = mercatorPixel(latitude, longitude, z);
+    var u = px[0] - 0.5, v = px[1] - 0.5, i0 = Math.floor(u), j0 = Math.floor(v), fx = u - i0, fy = v - j0;
+    function at(i, j) {
+      var ty = Math.floor(j / TERRAIN_SIZE), tx = Math.floor(i / TERRAIN_SIZE);
+      if (ty < 0 || ty >= n) return NaN;
+      var grid = gridAt(z, ((tx % n) + n) % n, ty);
+      return grid ? grid[(j - ty * TERRAIN_SIZE) * TERRAIN_SIZE + (i - tx * TERRAIN_SIZE)] : NaN;
+    }
+    var h = (at(i0, j0) * (1 - fx) + at(i0 + 1, j0) * fx) * (1 - fy) +
+      (at(i0, j0 + 1) * (1 - fx) + at(i0 + 1, j0 + 1) * fx) * fy;
+    return Number.isFinite(h) ? h : null;
+  }
+
+  function projectTrail(lines, position, heading, pitch, width, height, fov, elevationAt) {
+    return projectTrailDetail(lines, position, heading, pitch, width, height, fov, elevationAt).d;
+  }
+
+  // Camera 1.5 m above the ground at the hiker. With elevationAt(latitude, longitude)
+  // returning meters, each sample sits at its terrain height relative to the hiker;
+  // if the hiker or any sample lacks elevation the whole path uses flat ground, so a
+  // coverage gap cannot draw a cliff. Returns { d, terrain } (terrain: heights used).
   // Clip each source segment to a 100m neighborhood BEFORE sampling so long
   // segments crossing the hiker remain visible without unbounded subdivision.
-  function projectTrail(lines, position, heading, pitch, width, height, fov) {
+  function projectTrailDetail(lines, position, heading, pitch, width, height, fov, elevationAt) {
     if (![position.latitude, position.longitude, heading, pitch, width, height, fov].every(Number.isFinite) ||
-        width <= 0 || height <= 0 || fov <= 20 || fov >= 120) return '';
+        width <= 0 || height <= 0 || fov <= 20 || fov >= 120) return { d: '', terrain: false };
     var h = toRad(heading), p = toRad(pitch), focal = width / (2 * Math.tan(toRad(fov) / 2));
-    var path = [];
+    var cosLat = Math.cos(toRad(position.latitude));
+    var runs = [], path = [];
     function local(c) {
-      return [toRad(angularDelta(position.longitude, c[0])) * R_EARTH * Math.cos(toRad(position.latitude)),
+      return [toRad(angularDelta(position.longitude, c[0])) * R_EARTH * cosLat,
         toRad(c[1] - position.latitude) * R_EARTH];
     }
-    function project(e, n) {
+    // dz: sample ground height minus camera height, in meters.
+    function project(e, n, dz) {
       var side = e * Math.cos(h) - n * Math.sin(h);
       var forward = e * Math.sin(h) + n * Math.cos(h);
-      var depth = forward * Math.cos(p) - 1.5 * Math.sin(p);
+      var depth = forward * Math.cos(p) + dz * Math.sin(p);
       if (depth < 1) return null;
-      var up = -1.5 * Math.cos(p) - forward * Math.sin(p);
+      var up = dz * Math.cos(p) - forward * Math.sin(p);
       return [width / 2 + focal * side / depth, height / 2 - focal * up / depth];
     }
     // Liang-Barsky: the parameter range [lo, hi] of (x, y) + t*(dx, dy) inside a box, or null.
@@ -137,15 +194,34 @@
         if (!range) continue;
         var lo = range[0], hi = range[1];
         var steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) * (hi - lo) / 2));
-        var current = null;
+        var run = null;
         for (var j = 0; j <= steps; j++) {
           var t = lo + (hi - lo) * j / steps, e = a[0] + dx * t, n = a[1] + dy * t;
-          var q = Math.hypot(e, n) <= 100 ? project(e, n) : null;
-          if (!q) { current = null; continue; }
-          if (!current) path.push(current = []);
-          current.push(q);
+          if (Math.hypot(e, n) > 100) { run = null; continue; }
+          if (!run) runs.push(run = []);
+          run.push([e, n]);
         }
       }
+    });
+    var ground = null, terrain = false;
+    var base = typeof elevationAt === 'function' ? elevationAt(position.latitude, position.longitude) : null;
+    if (Number.isFinite(base)) {
+      ground = runs.map(function (run) {
+        return run.map(function (s) {
+          var hAt = elevationAt(position.latitude + toDeg(s[1] / R_EARTH), position.longitude + toDeg(s[0] / (R_EARTH * cosLat)));
+          return Number.isFinite(hAt) ? hAt - base : NaN;
+        });
+      });
+      terrain = ground.every(function (heights) { return heights.every(Number.isFinite); });
+    }
+    runs.forEach(function (run, r) {
+      var current = null;
+      run.forEach(function (s, k) {
+        var q = project(s[0], s[1], (terrain ? ground[r][k] : 0) - 1.5);
+        if (!q) { current = null; return; }
+        if (!current) path.push(current = []);
+        current.push(q);
+      });
     });
     // Off-screen samples stay in the path for the SVG to clip, so a segment that
     // crosses the view between two off-screen samples still draws. Report nothing
@@ -158,13 +234,14 @@
         return !!part && (part[1] - part[0]) * Math.hypot(sx, sy) >= 0.1;
       });
     });
-    if (!visible) return '';
-    return path.map(function (points) {
+    if (!visible) return { d: '', terrain: false };
+    var d = path.map(function (points) {
       return points.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); });
     }).filter(function (points) {
       // A lone point or repeats of one pixel would draw a round-cap dot, not a line.
       return points.some(function (point) { return point !== points[0]; });
     }).map(function (points) { return 'M' + points.join(' L'); }).join(' ');
+    return { d: d, terrain: terrain };
   }
 
   // Compass heading of the back camera (the vector out of the back of the screen) from
@@ -253,6 +330,8 @@
   var Geo = {
     trailLines: trailLines, projectTrail: projectTrail,
     backCameraHeading: backCameraHeading, declination: declination,
+    decodeTerrarium: decodeTerrarium, terrainTiles: terrainTiles, sampleTerrain: sampleTerrain,
+    projectTrailDetail: projectTrailDetail,
     R_EARTH: R_EARTH,
     toRad: toRad, toDeg: toDeg,
     norm360: norm360,
