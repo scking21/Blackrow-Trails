@@ -176,8 +176,15 @@
       schedule();
       var h = headingFromEvent(e);
       if (h == null) return;
-      orientationAt = Date.now();
       rawCompass = h;
+      // An inaccurate reading must not enter the smoother, or the next accurate one
+      // would unlock a heading still dragged off by it. Restart from that reading.
+      if (compassAccuracy != null && (compassAccuracy < 0 || compassAccuracy > 25)) {
+        smoothCompass = null;
+        schedule();
+        return;
+      }
+      orientationAt = Date.now();
       smoothCompass = Geo.smoothHeading(smoothCompass, h, HEADING_ALPHA);
       schedule();
     }
