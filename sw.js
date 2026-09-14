@@ -26,7 +26,7 @@ const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline
 // not user data), but a user who updates and immediately goes offline loses those
 // vendored features until they are online once. We state it; we do not solve it.
 // TILE_CACHE and DATA_CACHE hold genuine USER DATA and must never be renamed.
-const ASSET_CACHE = 'trail-assets-7dd85ddd2748';  // substituted by scripts/emit-sw.mjs from asset bytes
+const ASSET_CACHE = 'trail-assets-ccd46495c95b';  // substituted by scripts/emit-sw.mjs from asset bytes
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
 const MAX_TILES   = 4000;            // shared ceiling with page-side offline region downloads
 
