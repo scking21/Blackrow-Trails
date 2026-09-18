@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Blackrow Trails</title>
+  <style>body{background:#063f33;color:white;font:1.1rem system-ui;padding:4rem 2rem}button{font:inherit;padding:.8rem 1.2rem}</style>
+</head>
+<body>
+  <p id="status" role="status">Starting Blackrow Trails…</p>
+  <button id="retry" type="button" hidden>Try again</button>
+  <script>
+    // Native starts here, before any app modules run. A previous release's
+    // cache-first worker has never cached this entrypoint. Replace its
+    // registration before navigating to the app, preserving all stored data.
+    // New native workers always read bundled files directly from the device.
+    async function startNativeApp() {
+      const retry = document.getElementById('retry');
+      retry.hidden = true;
+      document.getElementById('status').textContent = 'Starting Blackrow Trails…';
+      try {
+        if (window.Capacitor?.isNativePlatform() &&
+            ['http:', 'https:'].includes(window.location.protocol) && 'serviceWorker' in navigator) {
+          const previous = await navigator.serviceWorker.getRegistration('./');
+          if (previous) await previous.unregister();
+          const registration = await navigator.serviceWorker.register('./sw.js?native=1', {
+            scope: './', updateViaCache: 'none'
+          });
+          const worker = registration.installing || registration.waiting || registration.active;
+          if (!worker) throw new Error('Offline worker unavailable');
+          await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => finish(new Error('Offline worker timed out')), 15000);
+            function finish(error) {
+              clearTimeout(timer);
+              worker.removeEventListener('statechange', check);
+              error ? reject(error) : resolve();
+            }
+            function check() {
+              if (worker.state === 'activated') finish();
+              else if (worker.state === 'redundant') finish(new Error('Offline worker failed'));
+            }
+            worker.addEventListener('statechange', check);
+            check();
+          });
+        }
+        window.location.replace('./index.html');
+      } catch (error) {
+        console.warn('Native startup failed', error);
+        document.getElementById('status').textContent = 'Blackrow could not finish starting. Please try again.';
+        retry.hidden = false;
+      }
+    }
+    document.getElementById('retry').addEventListener('click', startNativeApp);
+    void startNativeApp();
+  </script>
+</body>
+</html>

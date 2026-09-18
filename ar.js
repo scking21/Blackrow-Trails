@@ -13,6 +13,10 @@
 (function () {
   'use strict';
 
+  var Cap = window.Capacitor;
+  var nativeGeo = Cap && Cap.isNativePlatform && Cap.isNativePlatform() &&
+    Cap.Plugins && Cap.Plugins.Geolocation;
+
   // ---- Tunables -------------------------------------------------------------
   var DEFAULT_FOV_DEG = 55;          // GUESS. Calibrate per device/lens/orientation.
   var HEADING_ALPHA = 0.15;          // compass smoothing (new-sample weight); lower = calmer
@@ -51,7 +55,7 @@
     var pos = null, gpsAcc = null;
     var rawCompass = null, smoothCompass = null;
     var arrived = false, debug = false, raf = 0;
-    var stream = null, watchId = null;
+    var stream = null, watchId = null, watchNative = false;
     var cameraError = null, gpsError = null, compassError = null;
     // origin: the mapped-trail point the route drawing is anchored to, or null.
     var snap = { origin: null, since: 0, fixes: 0, lastAt: 0 };
@@ -148,20 +152,35 @@
       window.addEventListener('deviceorientation', onOrient, true);
 
       // GPS
-      if (navigator.geolocation) {
-        watchId = navigator.geolocation.watchPosition(onPos, function (e) {
-          gpsError = 'GPS error — ' + (e && e.message ? e.message : 'denied');
-          clearSnap();
-          banner.textContent = gpsError;
-          banner.style.display = 'block';
-          pos = null; gpsAcc = null;
-          marker.style.display = 'none'; chevron.style.display = 'none';
-          schedule();
-        }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
+      var geoOptions = { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 };
+      if (nativeGeo && typeof nativeGeo.watchPosition === 'function') {
+        try {
+          watchId = await nativeGeo.watchPosition(geoOptions, function (position, error) {
+            if (error || !position) { onGpsError(error); return; }
+            onPos(position);
+          });
+          watchNative = true;
+          if (closed && watchId != null) {
+            void nativeGeo.clearWatch({ id: watchId });
+            watchId = null;
+          }
+        } catch (e) { onGpsError(e); }
+      } else if (navigator.geolocation) {
+        watchId = navigator.geolocation.watchPosition(onPos, onGpsError, geoOptions);
       } else {
         banner.textContent = 'Geolocation not available on this device.';
       }
 
+      schedule();
+    }
+
+    function onGpsError(e) {
+      gpsError = 'GPS error: ' + (e && e.message ? e.message : 'denied');
+      clearSnap();
+      banner.textContent = gpsError;
+      banner.style.display = 'block';
+      pos = null; gpsAcc = null;
+      marker.style.display = 'none'; chevron.style.display = 'none';
       schedule();
     }
 
@@ -337,6 +356,21 @@
       compass.setAttribute('aria-label', 'Compass heading ' + direction + ', ' + heading + ' degrees' + (magnetic ? ' magnetic' : ''));
     }
 
+    // Physical rear-camera tilt from the W3C Z-X-Y orientation matrix.
+    // Raw gamma is not screen roll: at beta=90 the phone is upright for any gamma.
+    // https://w3c.github.io/deviceorientation/#worked-example
+    function cameraPose() {
+      if (!Number.isFinite(beta) || !Number.isFinite(gamma)) return null;
+      var b = beta * Math.PI / 180, g = gamma * Math.PI / 180;
+      var rightUp = -Math.cos(b) * Math.sin(g);
+      var topUp = Math.sin(b);
+      var rearUp = -Math.cos(b) * Math.cos(g);
+      return {
+        pitch: Math.asin(Math.max(-1, Math.min(1, rearUp))) * 180 / Math.PI,
+        roll: Math.atan2(rightUp, topUp) * 180 / Math.PI
+      };
+    }
+
     function renderRoute() {
       marker.style.display = 'none'; chevron.style.display = 'none';
       proximity.hidden = true;
@@ -347,12 +381,13 @@
       var angle = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
       var problem = cameraError || compassError || gpsError || sensorProblem();
       if (!problem && (!Number.isFinite(gpsAcc) || gpsAcc <= 0 || gpsAcc > 25)) problem = 'GPS too uncertain for trail overlay. Move to an open area.';
-      if (!problem && (angle !== 0 || beta == null || gamma == null || beta < 25 || beta > 110 || Math.abs(gamma) > 15))
+      var pose = cameraPose();
+      if (!problem && (angle !== 0 || !pose || pose.pitch < -65 - 1e-6 || pose.pitch > 20 + 1e-6 || Math.abs(pose.roll) > 15 + 1e-6))
         problem = 'Hold phone upright in portrait, level left to right, and aim along the trail.';
       if (!problem) {
         // Camera direction must use the compass, never walking course: hikers can
         // look sideways while moving. Pitch moves the ground relative to the camera.
-        var drawn = Geo.projectTrailDetail(lines, snap.origin || pos, trueCompass(), beta - 90, ov.clientWidth, ov.clientHeight, fovDeg,
+        var drawn = Geo.projectTrailDetail(lines, snap.origin || pos, trueCompass(), pose.pitch, ov.clientWidth, ov.clientHeight, fovDeg,
           function (latitude, longitude) { return Geo.sampleTerrain(latitude, longitude, terrain.gridAt); });
         var d = drawn.d;
         terrainUsed = drawn.terrain && !!d;
@@ -368,7 +403,11 @@
 
     function setHud(bearingToTarget, dist, heading, proj) {
       if (!debug) return;
+      var pose = cameraPose();
       hud.innerHTML =
+        row('Camera tilt', pose ? pose.pitch.toFixed(1) + '°' : 'Unavailable') +
+        row('Side lean', pose ? pose.roll.toFixed(1) + '°' : 'Unavailable') +
+        row('Screen rotation', String((screen.orientation && screen.orientation.angle) || window.orientation || 0) + '°') +
         row('Heading (true)', heading == null ? '—' : heading.toFixed(0) + '°') +
         row('Compass(mag)', rawCompass == null ? '—' : rawCompass.toFixed(0) + '°') +
         row('Declination', declination == null ? '—' : declination.toFixed(1) + '°') +
@@ -397,7 +436,13 @@
       cancelAnimationFrame(raf);
       window.removeEventListener('deviceorientationabsolute', onOrient, true);
       window.removeEventListener('deviceorientation', onOrient, true);
-      if (watchId != null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+      if (watchId != null) {
+        if (watchNative && nativeGeo && typeof nativeGeo.clearWatch === 'function') {
+          void nativeGeo.clearWatch({ id: watchId });
+        } else if (navigator.geolocation) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+      }
       if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
       if (ov.parentNode) ov.parentNode.removeChild(ov);
     }
@@ -464,29 +509,29 @@
       '.ar-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden}.ar-route path{fill:none;stroke:#58f4b3;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #000)}' +
       '.ar-marker{position:absolute;transform:translate(-50%,-100%);text-align:center;pointer-events:none;transition:left .08s linear}' +
       '.ar-pin{line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}.ar-pin img{width:38px;height:38px;filter:invert(1)}' +
-      '.ar-card{display:inline-block;margin-top:2px;background:rgba(20,40,25,.85);color:#fff;border-radius:10px;padding:6px 10px;backdrop-filter:blur(4px)}' +
-      '.ar-label{font-size:22px;font-weight:600}' +
-      '.ar-dist{font-size:20px;opacity:1;margin-top:1px}' +
+      '.ar-card{display:inline-block;margin-top:2px;background:#fff;color:#000;border:2px solid #000;border-radius:10px;padding:6px 10px}' +
+      '.ar-label{font-size:26px;font-weight:700}' +
+      '.ar-dist{font-size:24px;opacity:1;margin-top:1px}' +
       '.ar-chevron{position:absolute;top:42%;transform:translateY(-50%);display:none;flex-direction:column;align-items:center;color:#fff;gap:6px;pointer-events:none}' +
       '.ar-chevron.left{left:18px}.ar-chevron.right{right:18px}' +
       '.ar-chev-arrow{font-size:46px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));animation:arpulse 1.1s ease-in-out infinite}' +
-      '.ar-chev-text{background:rgba(20,40,25,.85);border-radius:8px;padding:10px 14px;font-size:20px;font-weight:700;max-width:75vw}' +
+      '.ar-chev-text{background:#fff;color:#000;border:2px solid #000;border-radius:8px;padding:10px 14px;font-size:24px;font-weight:700;max-width:75vw}' +
       '@keyframes arpulse{0%,100%{transform:translateX(0);opacity:.85}50%{transform:translateX(4px);opacity:1}}' +
       '.ar-chevron.left .ar-chev-arrow{animation-name:arpulseL}@keyframes arpulseL{0%,100%{transform:translateX(0);opacity:.85}50%{transform:translateX(-4px);opacity:1}}' +
-      '.ar-banner{position:absolute;left:16px;right:110px;top:calc(env(safe-area-inset-top,0px) + 14px);background:rgba(0,0,0,.88);color:#fff;padding:12px 14px;border-radius:14px;font-size:20px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}' +
-      '.ar-confidence{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 98px);padding:14px 16px;background:rgba(0,0,0,.88);color:#fff;border-radius:14px;font-size:22px;font-weight:600;pointer-events:none}' +
-      '.ar-proximity{font-weight:700;margin-bottom:6px}.ar-qualifier{font-size:18px;font-weight:500;margin-top:8px;line-height:1.45}' +
-      '.ar-btn{position:absolute;z-index:2;width:64px;height:64px;display:grid;place-items:center;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(0,0,0,.88);color:#fff;font-size:34px;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(4px)}' +
+      '.ar-banner{position:absolute;left:16px;right:110px;top:calc(env(safe-area-inset-top,0px) + 14px);background:#fff;color:#000;border:2px solid #000;padding:12px 14px;border-radius:14px;font-size:24px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}' +
+      '.ar-confidence{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 98px);padding:14px 16px;background:#fff;color:#000;border:2px solid #000;border-radius:14px;font-size:26px;font-weight:700;pointer-events:none}' +
+      '.ar-proximity{font-weight:700;margin-bottom:6px}.ar-qualifier{font-size:22px;font-weight:600;margin-top:8px;line-height:1.45}' +
+      '.ar-btn{position:absolute;z-index:2;width:64px;height:64px;display:grid;place-items:center;padding:0;border-radius:50%;border:3px solid #000;background:#fff;color:#000;font-size:34px;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation}' +
       '.ar-close{top:calc(env(safe-area-inset-top,0px) + 14px);right:18px}' +
       '.ar-debug{bottom:calc(env(safe-area-inset-bottom,0px) + 18px);left:18px}' +
-      '.ar-map-fallback{right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);width:auto;min-width:158px;padding:0 18px;border-radius:32px;font-size:18px;line-height:1.2}' +
-      '.ar-compass{position:absolute;z-index:1;top:calc(env(safe-area-inset-top,0px) + 94px);right:12px;width:80px;padding:10px 4px;border-radius:18px;background:rgba(0,0,0,.88);color:#fff;text-align:center;pointer-events:none;box-sizing:border-box}' +
-      '.ar-compass-dial{position:relative;width:60px;height:60px;margin:0 auto 8px;border:2px solid #fff;border-radius:50%;box-sizing:border-box}.ar-compass-north{position:absolute;top:0;left:0;right:0;font-size:18px;font-weight:800;line-height:22px}.ar-compass-needle{position:absolute;top:22px;left:0;right:0;color:#ff8585;font-size:26px;line-height:28px}.ar-compass-reading{display:block;font-size:18px;line-height:1.4;font-variant-numeric:tabular-nums}' +
-      '.ar-hud{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 260px);bottom:calc(env(safe-area-inset-bottom,0px) + 98px);overflow:auto;display:none;background:rgba(0,0,0,.94);color:#cfe;border-radius:14px;padding:16px;font-size:18px;line-height:1.5;font-variant-numeric:tabular-nums}' +
-      '.ar-row{display:flex;justify-content:space-between;gap:14px;padding:3px 0}.ar-row b{color:#fff}' +
+      '.ar-map-fallback{right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);width:auto;min-width:158px;max-width:calc(100% - 116px);padding:0 18px;border-radius:32px;font-size:22px;line-height:1.2}' +
+      '.ar-compass{position:absolute;z-index:1;top:calc(env(safe-area-inset-top,0px) + 94px);right:12px;width:88px;padding:10px 4px;border-radius:18px;background:#fff;color:#000;border:2px solid #000;text-align:center;pointer-events:none;box-sizing:border-box}' +
+      '.ar-compass-dial{position:relative;width:60px;height:60px;margin:0 auto 8px;border:2px solid #000;border-radius:50%;box-sizing:border-box}.ar-compass-north{position:absolute;top:0;left:0;right:0;font-size:22px;font-weight:800;line-height:22px}.ar-compass-needle{position:absolute;top:22px;left:0;right:0;color:#000;font-size:26px;line-height:28px}.ar-compass-reading{display:block;font-size:22px;line-height:1.4;font-variant-numeric:tabular-nums}' +
+      '.ar-hud{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 260px);bottom:calc(env(safe-area-inset-bottom,0px) + 98px);overflow:auto;display:none;background:#fff;color:#000;border:2px solid #000;border-radius:14px;padding:16px;font-size:22px;line-height:1.5;font-variant-numeric:tabular-nums}' +
+      '.ar-row{display:flex;justify-content:space-between;gap:14px;padding:3px 0}.ar-row b{color:#000}' +
       '.ar-fov{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}' +
-      '.ar-fov button{width:56px;height:56px;border-radius:10px;border:2px solid #8db;background:#143;color:#fff;font-size:30px;cursor:pointer}' +
-      '.ar-fov-hint{flex-basis:100%;font-size:18px;line-height:1.4}';
+      '.ar-fov button{width:56px;height:56px;border-radius:10px;border:3px solid #000;background:#fff;color:#000;font-size:30px;cursor:pointer}' +
+      '.ar-fov-hint{flex-basis:100%;font-size:22px;line-height:1.4}';
     document.head.appendChild(s);
   }
 })();

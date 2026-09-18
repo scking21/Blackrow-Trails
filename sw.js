@@ -9,7 +9,7 @@
 // but not sw.js, so every returning browser kept serving the broken stylesheet
 // out of 'trail-shell-v8'. Derived from the shell bytes for exactly the reason
 // ASSET_CACHE is — the manual discipline has now failed for both caches.
-const SHELL_CACHE = 'trail-shell-da8533b9677c';  // substituted by scripts/emit-sw.mjs from shell bytes
+const SHELL_CACHE = 'trail-shell-62830b09e6b4';  // substituted by scripts/emit-sw.mjs from shell bytes
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -35,10 +35,14 @@ const MAX_TILES   = 4000;            // shared ceiling with page-side offline re
 // app's own origin but served from disk) this stays cache-first for offline use.
 const DEV = /^(localhost|127\.0\.0\.1)$/.test(self.location.hostname) &&
             self.location.port !== '';   // a real dev server has a port; native build does not
+// Native files already ship on disk. Never let a worker pin an older app shell
+// or vendored library across an APK/IPA upgrade. Remote map caching stays active.
+const NATIVE = self.location.search === '?native=1';
 
 const SHELL_ASSETS = [
   './',
   './index.html',
+  './licenses.html',
   './styles.css',
   './vendor/leaflet/leaflet.css',
   './vendor/leaflet/leaflet.js',
@@ -59,6 +63,10 @@ const isResAsset = (url) =>
   /\/assets\/sql-wasm\.wasm$/.test(url);
 
 self.addEventListener('install', (e) => {
+  if (NATIVE) {
+    e.waitUntil(self.skipWaiting());
+    return;
+  }
   e.waitUntil(
     caches.open(SHELL_CACHE)
       // The shell is a single offline unit. Let addAll reject the install if
@@ -113,6 +121,7 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = req.url;
+  if (NATIVE && new URL(url).origin === self.location.origin) return;
 
   // Map tiles: cache-first (serve offline), then network + store.
   if (isTile(url)) {

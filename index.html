@@ -12,6 +12,29 @@
 </head>
 <body>
 
+<dialog id="onboarding-dialog" aria-labelledby="onboarding-title" aria-describedby="onboarding-copy">
+  <div class="onboarding-top">
+    <img src="assets/icons/phosphor/tree-evergreen.svg" alt="" width="32" height="32">
+    <button id="onboarding-skip" type="button">Skip guide</button>
+  </div>
+  <p id="onboarding-step" class="onboarding-step" aria-live="polite">1 of 5</p>
+  <h2 id="onboarding-title" tabindex="-1">Find a trail</h2>
+  <p id="onboarding-copy"></p>
+  <div class="onboarding-actions">
+    <button id="onboarding-back" type="button">Back</button>
+    <button id="onboarding-next" type="button">Next</button>
+  </div>
+  <p class="onboarding-return">Reopen this guide anytime from Planner.</p>
+</dialog>
+
+<dialog id="map-app-dialog" class="map-app-dialog" aria-labelledby="map-app-dialog-title" aria-describedby="map-app-dialog-copy">
+  <h2 id="map-app-dialog-title">Open trailhead directions with</h2>
+  <p id="map-app-dialog-copy">Choose once and Blackrow will use that app next time. You can change it later in Planner.</p>
+  <p id="map-app-dialog-status" role="status">Checking the map apps installed on this device...</p>
+  <div id="map-app-options" class="map-app-options"></div>
+  <button id="map-app-cancel" class="map-app-cancel" type="button">Cancel</button>
+</dialog>
+
 <header>
   <h1>
     <span class="brand-mark" aria-hidden="true"><img src="assets/icons/phosphor/tree-evergreen.svg" alt=""></span>
@@ -28,20 +51,22 @@
 <div class="tab active" id="tab-map">
   <section class="ready-hero" aria-labelledby="ready-title">
     <p class="ready-eyebrow">TRAIL READINESS</p>
-    <h2 id="ready-title">Your next hike</h2>
+    <h2 id="ready-title">Explore trails</h2>
   </section>
-  <section class="active-trail-card" id="ready-trail-card" role="button" tabindex="0" aria-label="Change selected trail" aria-controls="trail-search" aria-expanded="false">
+  <section class="active-trail-card" id="ready-selected-trail" hidden aria-label="Selected trail" aria-controls="detail">
     <div class="trail-ring" aria-hidden="true"><img src="assets/icons/phosphor/circle-dashed.svg" alt=""></div>
     <div class="active-trail-copy">
       <p class="active-trail-label">Selected trail</p>
-      <h3 id="ready-trail-name">Treasure Loop Trail</h3>
+      <h3><button id="ready-trail-name" class="selected-trail-title" type="button" aria-label="View selected trail details"></button></h3>
       <div class="active-trail-stats" aria-live="polite">
-        <span><img src="assets/icons/phosphor/leaf.svg" alt=""><strong id="ready-trail-diff">Easy</strong></span>
-        <span id="ready-trail-length">2.4 mi</span>
-        <span id="ready-trail-gain">500 ft gain</span>
-        <span id="ready-trail-time">1 hr 18 min</span>
+        <span><img src="assets/icons/phosphor/leaf.svg" alt=""><strong id="ready-trail-diff"></strong></span>
+        <span id="ready-trail-length"></span>
+        <span id="ready-trail-gain"></span>
+        <span id="ready-trail-time"></span>
       </div>
+      <small id="ready-trail-source"></small>
     </div>
+    <div class="selected-trail-actions"><button id="ready-view-details" type="button">View selected trail</button><button id="ready-camera" type="button" hidden>View trail in camera</button><button id="ready-show-map" type="button">Show on map</button><button id="ready-clear-selection" type="button">Clear selection</button></div>
   </section>
   <div class="map-card">
     <div id="map"></div>
@@ -49,6 +74,14 @@
       <img src="assets/icons/phosphor/stack.svg" alt=""><span>Map options</span>
     </button>
   </div>
+  <section class="ready-discovery" id="ready-discovery" aria-labelledby="ready-discovery-title">
+    <div>
+      <p class="active-trail-label" id="ready-discovery-title">Search this area</p>
+      <p id="ready-discovery-status" aria-live="polite">Move the map or search to find trails in this area.</p>
+    </div>
+    <div id="ready-discovery-results"></div>
+    <button class="change-trail-btn" id="ready-discovery-search" type="button">Search this area</button>
+  </section>
   <div id="route-toolbar">
     <div class="rt-row">
       <span class="rt-stat" id="rt-title">New route</span>
@@ -60,11 +93,14 @@
     </div>
     <div class="rt-hint">Tap the map to drop points. Snap pulls each point onto a nearby trail line (load the Trails layer & zoom in).</div>
   </div>
-  <div id="trail-search">
+  <div id="trail-search" role="dialog" aria-modal="true" aria-labelledby="trail-search-title">
+    <div class="trail-search-head">
+      <strong id="trail-search-title">Choose a trail in Blackrow</strong>
+      <button class="ts-clear" id="ts-clear" type="button">Cancel</button>
+    </div>
     <div class="ts-box">
       <span class="ts-ico">🔍</span>
       <input id="ts-input" type="search" placeholder="Search trails by name…" autocomplete="off" aria-label="Search trails by name">
-      <button class="ts-clear" id="ts-clear" title="Clear" aria-label="Clear search">✕</button>
     </div>
     <div id="ts-results"></div>
   </div>
@@ -79,15 +115,12 @@
       <span class="readiness-copy"><strong>Emergency contacts</strong><small id="ready-emergency-detail">Numbers saved on this device</small></span>
       <span class="readiness-state"><img src="assets/icons/phosphor/check.svg" alt=""></span>
     </button>
-    <button class="readiness-row" id="ready-directions" type="button">
+    <button class="readiness-row" id="ready-directions" type="button" disabled>
       <span class="readiness-icon"><img src="assets/icons/phosphor/car.svg" alt=""></span>
-      <span class="readiness-copy"><strong>Trailhead directions</strong><small id="ready-directions-detail">Open Treasure Loop trailhead</small></span>
+      <span class="readiness-copy"><strong>Trailhead directions</strong><small id="ready-directions-detail">Select a trail to get directions</small></span>
       <span class="readiness-state pending"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
     </button>
-    <button class="start-hike-btn" id="ready-start" type="button">
-      <span>View trail</span><span class="start-hike-arrow"><img src="assets/icons/phosphor/arrow-right.svg" alt=""></span>
-    </button>
-    <button class="change-trail-btn" id="ready-change" type="button" aria-controls="trail-search" aria-expanded="false">Change trail</button>
+    <button class="change-trail-btn" id="ready-change" type="button" aria-controls="trail-search" aria-expanded="false">Search trails</button>
   </section>
   <aside id="map-options">
     <div class="mobile-sheet-head">
@@ -185,9 +218,14 @@
         <div class="stat"><div class="label" id="d-label-land">Land</div><div class="value" id="d-land"></div></div>
       </div>
       <p class="desc" id="d-desc"></p>
+      <a class="official-source-link" id="d-source" target="_blank" rel="noopener" style="display:none">Official trail information</a>
       <div class="trail-detail-actions">
-      <a class="directions-btn" id="d-directions" target="_blank" rel="noopener">🧭 Directions via OSM</a>
+      <button class="directions-btn" id="d-assistant" type="button" hidden>Ask about this trail</button>
+      <a class="directions-btn" id="d-directions" target="_blank" rel="noopener">Directions to trailhead</a>
       <button class="directions-btn" id="d-ar" style="display:none">Point toward trailhead</button>
+      <button class="directions-btn tr-fol" id="d-follow" type="button" aria-describedby="d-follow-help" disabled>Start trail alerts</button>
+      <p class="desc" id="d-follow-help">This guide has no mapped route for off-route alerts. Choose a mapped segment to see its route and start alerts.</p>
+      <button class="plan-btn" id="d-choose-mapped" type="button">Choose mapped segment</button>
       <button class="plan-btn" id="d-add-plan">＋ Add to Plan</button>
       </div>
       <div id="d-access" class="access-block" style="display:none">
@@ -207,6 +245,12 @@
 <div class="tab" id="tab-planner">
   <div class="planner-wrap">
 
+    <section class="trip-kit" id="trail-assistant-entry" hidden>
+      <h2>Trail assistant</h2>
+      <p class="planner-sub">Ask about a trail using the details saved in Blackrow.</p>
+      <button class="app-guide-open" id="trail-assistant-open" type="button">Ask a trail question</button>
+    </section>
+
     <div class="trip-overview" id="trip-overview">
       <button id="active-trip-button" aria-haspopup="dialog" aria-expanded="false">
         <span class="atb-label">My Trips</span>
@@ -220,24 +264,28 @@
         <button id="my-trips-close" aria-label="Close My Trips">✕</button>
       </div>
       <div class="my-trips-list" id="my-trips-list"></div>
+
       <!-- Safe Import entry point. mountImportEntry is reached through
            window.BlackrowImportUI and mounts a hidden .json/.blackrowtrip.json
            picker plus the enabled user-facing import card. -->
       <div class="mts-import" id="trip-import-entry"></div>
+
     </div>
     <div class="planner-head">
       <h2>Trip Plan</h2>
       <button id="plan-clear" title="Remove all trails">Clear all</button>
     </div>
     <p class="planner-sub">Choose a trail, then add it to a day.</p>
+    <button id="app-guide-open" class="app-guide-open" type="button">How to use Blackrow Trails</button>
     <button id="plan-add-trail" class="btn-paid planner-add-trail" type="button">Add a trail</button>
     <div class="planner-head" style="margin:0 0 12px">
       <span id="plan-saved" style="font-size: 0.75rem;color:var(--accent)">✓ Auto-saved on this device</span>
       <div style="display:flex;gap:14px;align-items:center">
-        <button id="plan-backup" title="Save your whole trip to a file you can back up, move to a new phone, or share">Back up trip</button>
+        <button id="plan-backup" title="Save trip records and field data; original documents and offline maps are excluded">Back up trip</button>
         <button id="plan-restore" title="Restore a trip from a backup file">Restore</button>
       </div>
     </div>
+    <p class="planner-sub">Backup excludes original reservation documents and offline maps. Keep originals separately and reimport them on a new device.</p>
     <input id="plan-file" type="file" accept="application/json,.json" style="display:none">
     <div class="plan-totals">
       <div class="pt"><div class="pt-val" id="pt-count">0</div><div class="pt-lab">Trails</div></div>
@@ -314,22 +362,82 @@
     </div>
     </details>
 
+    <div class="trip-kit" id="trail-alert-settings">
+      <h2 style="margin:0 0 4px;font-size:1.0625rem">Trail alerts</h2>
+      <p class="planner-sub" style="margin-bottom:12px">Blackrow speaks only while you are actively following a trail. Apple VoiceOver is not required.</p>
+      <label for="trail-alert-voice" style="display:block;font-size:0.75rem;font-weight:700;margin-bottom:5px">Voice</label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="trail-alert-voice" style="min-width:0;max-width:100%;min-height:44px;flex:1 1 190px;padding:8px 10px;border:1px solid #c9c2b2;border-radius:8px;background:#fff;font:inherit">
+          <option value="">Checking installed voices...</option>
+        </select>
+        <button id="trail-alert-voice-test" type="button" style="min-height:44px;padding:8px 14px;border:1px solid #2e6b34;border-radius:8px;background:#fff;color:#24552e;font:inherit;font-weight:700">Test voice</button>
+        <button id="trail-alert-voice-refresh" type="button" style="min-height:44px;padding:8px 14px;border:1px solid #2e6b34;border-radius:8px;background:#fff;color:#24552e;font:inherit">Refresh voices</button>
+      </div>
+      <p id="trail-alert-voice-status" role="status" class="planner-sub" style="margin:8px 0 0;min-height:18px"></p>
+      <p id="trail-alert-voice-help" class="planner-sub" hidden style="margin:8px 0 0"></p>
+      <p class="planner-sub" style="margin:4px 0 0">These voices work on this device without a network connection. Apple only makes some system voices available to apps.</p>
+    </div>
+
+    <div class="trip-kit" id="map-app-settings">
+      <h2 style="margin:0 0 4px;font-size:1.0625rem">Directions</h2>
+      <p class="planner-sub" style="margin-bottom:12px">Choose the app used for individual trailhead directions. This choice stays on this device.</p>
+      <label for="map-app-select" style="display:block;font-size:0.75rem;font-weight:700;margin-bottom:5px">Preferred maps app</label>
+      <select id="map-app-select" class="map-app-select">
+        <option value="">Checking installed apps...</option>
+      </select>
+      <p id="map-app-status" role="status" class="planner-sub" style="margin:8px 0 0;min-height:18px"></p>
+    </div>
+
     <div class="trip-kit" id="privacy-section">
       <h2 style="margin:0 0 4px;font-size: 1.0625rem">Privacy &amp; data</h2>
       <p class="planner-sub" style="margin-bottom:12px">Your precise GPS fix is processed on this device and is not sent to Blackrow Trails or analytics. Plans, waypoints, recorded tracks, and saved trails stay on this phone unless you export or share them. Map and weather providers receive the area you view, which can match your location when you center the map there.</p>
       <ul style="margin:0 0 12px;padding-left:18px;font-size: 0.8125rem;color:var(--muted);line-height:1.5">
         <li>The map, land, weather, and forecast layers send the viewed area or selected point to their data providers. If you center the map on your position, that request can approximate where you are.</li>
         <li>Backups and GPX files you export contain precise coordinates — only you choose when to share them.</li>
+
         <li>If the toggle below is on, the app sends limited usage events and redacted crash reports to PostHog. These include a random installation ID and basic app and device details. App events exclude coordinates, tracks, plans, reservation documents, and user-entered content. Session recording and person profiles are disabled, and events request no IP-based location enrichment. A Do Not Track or Global Privacy Control signal turns analytics off automatically.</li>
+
+
       </ul>
-      <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share limited usage &amp; redacted crash reports</label>
+
+      <label class="layer-row ph-no-capture" style="margin-bottom:10px"><input type="checkbox" id="privacy-analytics" checked><span></span>Share limited usage &amp; redacted crash reports</label>
+
       <label class="layer-row" style="margin-bottom:10px"><input type="checkbox" id="privacy-striptime"><span></span>Strip timestamps from exported track GPX (hides <em>when</em> you were there)</label>
-      <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording while minimized or the screen is off (uses more battery and a location service with an ongoing recording notification; Android may show it only under Active apps if notifications are off)</label>
+      <label class="layer-row" style="margin-bottom:14px"><input type="checkbox" id="record-bg"><span></span>Keep recording while minimized or the screen is off (uses more battery; Android shows a recording notification or Active apps entry, and iOS uses system location indicators)</label>
+      <button id="privacy-manage-storage" class="app-guide-open" type="button">Manage stored data</button>
       <button id="privacy-wipe" style="padding:9px 14px;border:1px solid #c0392b;background:#fff;color:#c0392b;border-radius:8px;font-size: 0.875rem;font-weight:600;cursor:pointer">Delete local field data and settings</button>
       <p id="privacy-status" style="margin:10px 0 0;font-size: 0.75rem;color:var(--accent);min-height:15px"></p>
+      <p class="planner-sub" style="margin:12px 0 0"><a href="licenses.html">Open-source licenses</a></p>
     </div>
   </div>
 </div>
+
+<dialog id="trail-assistant-dialog" class="trail-assistant-dialog ph-no-capture" aria-labelledby="trail-assistant-title">
+  <div class="trail-assistant-heading">
+    <h2 id="trail-assistant-title">Trail assistant</h2>
+    <button id="trail-assistant-close" type="button" aria-label="Close trail assistant">Close</button>
+  </div>
+  <p class="planner-sub">Powered by Apple Intelligence on this device. Questions and answers are not saved by Blackrow or sent to an AI service.</p>
+  <label for="trail-assistant-trail">Trail</label>
+  <select id="trail-assistant-trail"></select>
+  <p id="trail-assistant-context" class="planner-sub"></p>
+  <a id="trail-assistant-source" target="_blank" rel="noopener noreferrer" hidden>Saved trail source</a>
+  <form id="trail-assistant-form">
+    <label for="trail-assistant-question">Your question</label>
+    <textarea id="trail-assistant-question" rows="3" maxlength="2000" placeholder="What should I know about this trail?" required autocomplete="off"></textarea>
+    <div class="trail-assistant-actions">
+      <button id="trail-assistant-send" type="submit" disabled>Ask</button>
+      <button id="trail-assistant-stop" type="button" hidden>Stop</button>
+      <button id="trail-assistant-refresh" type="button">Check availability</button>
+    </div>
+  </form>
+  <p id="trail-assistant-status" role="status" aria-live="polite"></p>
+  <section id="trail-assistant-response" aria-label="Assistant response" hidden>
+    <h3>Answer</h3>
+    <p id="trail-assistant-answer"></p>
+  </section>
+  <p class="planner-sub">Each question starts fresh. Answers can be mistaken. Saved trail details cannot confirm current closures, weather or safe passage, and the assistant does not create a navigable route.</p>
+</dialog>
 
 <div class="tab" id="tab-reservations">
   <div id="res-mount"></div>
@@ -340,7 +448,7 @@
 <script src="ar.js"></script>
 <script src="billing.js"></script>
 <script src="share.js"></script>
-<!-- Anonymous product analytics + error capture (PostHog); see PRIVACY.md. -->
+<!-- Optional product analytics and error capture module; see the privacy policy. -->
 <script type="module" src="analytics.js"></script>
 <!-- Web-only: registers the <jeep-sqlite> element used by the reservations DB.
      Harmless on native (Capacitor uses the native SQLite plugin instead). -->
@@ -356,6 +464,7 @@
       <li><span class="fi">🗻</span><span><strong>Advanced Overlays</strong> — land borders, slope-angle shading &amp; live weather</span></li>
       <li><span class="fi">🔔</span><span><strong>Safety Alerts</strong> — wrong-turn audio warnings when you drift off route</span></li>
     </ul>
+
     <p class="pw-price" id="pw-price">$4.99/mo or $39.99/yr · cancel anytime</p>
     <p class="pw-error" id="pw-error" role="alert" hidden></p>
     <div class="pw-actions">
@@ -365,12 +474,15 @@
       <button class="pw-dismiss" id="pw-close">Maybe later</button>
     </div>
     <p class="pw-note">Trail Pro is an auto-renewable subscription. Payment is charged to your store account at confirmation of purchase. The free trial converts to a paid subscription after 14 days unless cancelled at least 24 hours before the trial ends. Manage or cancel anytime in your account settings.</p>
+
+
     <p class="pw-legal"><a id="pw-terms" href="https://scking21.github.io/Blackrow-Trails/terms.html" target="_blank" rel="noopener">Terms of Use (EULA)</a> · <a id="pw-privacy" href="https://scking21.github.io/Blackrow-Trails/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></p>
   </div>
 </div>
 
 <!-- Bundled first-party app (src/app/*.js → app.js via scripts/build-app.mjs). -->
 <script src="app.js"></script>
+
 <!-- Safe Import entry point wiring. The reservations ESM
      bundle publishes window.BlackrowImportUI (import-ui.ts) at load; this is
      a deferred module so the global is not set when app.js first runs. Poll
@@ -407,5 +519,6 @@
     else run();
   })();
 </script>
+
 </body>
 </html>
