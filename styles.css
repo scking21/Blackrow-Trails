@@ -1166,3 +1166,24 @@
 #trail-assistant-response { border-top: 1px solid #d8ddd6; margin-top: 16px; }
 #trail-assistant-answer { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
 #trail-assistant-source { display: inline-block; padding: 8px 0; min-height: 28px; }
+
+/* Desktop access to the same precise segment chooser used by the mobile flow. */
+#ready-discovery-close { display: none; }
+@media (min-width: 761px) and (pointer: fine) {
+  #ready-discovery-close { display: block; }
+  .mapped-segment-picker-open #ready-discovery {
+    display: block; position: absolute; z-index: 1200; top: 76px; left: 12px;
+    width: min(380px, calc(100vw - 340px)); max-height: calc(100vh - 180px);
+    overflow: auto; padding: 16px; border: 1px solid #aebdae; border-radius: 12px;
+    background: #fff; color: #123d30; box-shadow: 0 4px 18px #0003;
+  }
+  #ready-discovery-status { margin: 8px 0; line-height: 1.4; }
+  #ready-discovery-results { display: grid; gap: 8px; margin-top: 10px; }
+  #ready-discovery button {
+    display: block; width: 100%; min-height: 44px; padding: 10px; text-align: left;
+    border: 1px solid #aebdae; border-radius: 8px; background: #eff6ed;
+    color: #123d30; font: inherit; cursor: pointer;
+  }
+  #ready-discovery button:focus-visible { outline: 2px solid #174d3f; outline-offset: 2px; }
+  #ready-discovery-search { margin-top: 10px; }
+}
