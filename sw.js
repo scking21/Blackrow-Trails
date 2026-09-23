@@ -9,7 +9,7 @@
 // but not sw.js, so every returning browser kept serving the broken stylesheet
 // out of 'trail-shell-v8'. Derived from the shell bytes for exactly the reason
 // ASSET_CACHE is — the manual discipline has now failed for both caches.
-const SHELL_CACHE = 'trail-shell-7b7d72d75cab';  // substituted by scripts/emit-sw.mjs from shell bytes
+const SHELL_CACHE = 'trail-shell-ab7846a9d624';  // substituted by scripts/emit-sw.mjs from shell bytes
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -26,7 +26,7 @@ const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline
 // not user data), but a user who updates and immediately goes offline loses those
 // vendored features until they are online once. We state it; we do not solve it.
 // TILE_CACHE and DATA_CACHE hold genuine USER DATA and must never be renamed.
-const ASSET_CACHE = 'trail-assets-ccd46495c95b';  // substituted by scripts/emit-sw.mjs from asset bytes
+const ASSET_CACHE = 'trail-assets-632618428bc7';  // substituted by scripts/emit-sw.mjs from asset bytes
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
 const MAX_TILES   = 4000;            // shared ceiling with page-side offline region downloads
 
