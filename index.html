@@ -427,6 +427,7 @@
     <label for="trail-assistant-question">Your question</label>
     <textarea id="trail-assistant-question" rows="3" maxlength="2000" placeholder="What should I know about this trail?" required autocomplete="off"></textarea>
     <div class="trail-assistant-actions">
+      <button id="trail-assistant-microphone" type="button" aria-pressed="false" disabled>Ask by voice</button>
       <button id="trail-assistant-send" type="submit" disabled>Ask</button>
       <button id="trail-assistant-stop" type="button" hidden>Stop</button>
       <button id="trail-assistant-refresh" type="button">Check availability</button>
@@ -437,7 +438,7 @@
     <h3>Answer</h3>
     <p id="trail-assistant-answer"></p>
   </section>
-  <p class="planner-sub">Each question starts fresh. Answers can be mistaken. Saved trail details cannot confirm current closures, weather or safe passage, and the assistant does not create a navigable route.</p>
+  <p class="planner-sub">Voice questions are transcribed on this device. Each question starts fresh. Answers can be mistaken. Saved trail details and trail alert status cannot confirm current closures, weather or safe passage, and the assistant does not create a navigable route.</p>
 </dialog>
 
 <div class="tab" id="tab-reservations">

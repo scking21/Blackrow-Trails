@@ -1151,17 +1151,20 @@
 /* Apple local trail assistant */
 #trail-assistant-entry[hidden], #d-assistant[hidden], #trail-assistant-stop[hidden],
 #trail-assistant-source[hidden], #trail-assistant-response[hidden] { display: none !important; }
-.trail-assistant-dialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 32px); padding: 20px; border: 1px solid #c9c2b2; border-radius: 16px; background: #fffdf8; color: #213c2e; overflow-y: auto; overscroll-behavior: contain; }
+.trail-assistant-dialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-width: calc(100% - 24px); max-height: calc(100dvh - 32px); padding: 20px; border: 1px solid #c9c2b2; border-radius: 16px; background: #fffdf8; color: #213c2e; overflow-y: auto; overflow-wrap: anywhere; overscroll-behavior: contain; }
 .trail-assistant-dialog::backdrop { background: rgb(0 0 0 / 45%); }
-.trail-assistant-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.trail-assistant-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.trail-assistant-heading > * { min-width: 0; max-width: 100%; }
 .trail-assistant-heading h2, #trail-assistant-entry h2 { margin: 0 0 8px; font-size: 1.125rem; }
 .trail-assistant-dialog label { display: block; font-weight: 700; margin: 16px 0 6px; }
-.trail-assistant-dialog select, .trail-assistant-dialog textarea { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px; border: 1px solid #a9b4aa; border-radius: 8px; background: white; color: #213c2e; font: inherit; font-size: 1rem; }
+.trail-assistant-dialog select, .trail-assistant-dialog textarea { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 10px; border: 1px solid #a9b4aa; border-radius: 8px; background: white; color: #213c2e; font: inherit; font-size: 1rem; }
 .trail-assistant-dialog textarea { resize: vertical; }
-.trail-assistant-dialog button { min-height: 44px; padding: 9px 14px; border: 1px solid #2e6b34; border-radius: 8px; background: white; color: #24552e; font: inherit; font-weight: 600; cursor: pointer; }
+.trail-assistant-dialog button { min-height: 44px; max-width: 100%; overflow-wrap: anywhere; padding: 9px 14px; border: 1px solid #2e6b34; border-radius: 8px; background: white; color: #24552e; font: inherit; font-weight: 600; cursor: pointer; }
 .trail-assistant-dialog button:disabled { opacity: .55; cursor: default; }
 .trail-assistant-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 #trail-assistant-send { background: #063f35; color: white; }
+#trail-assistant-microphone { background: #fff; }
+#trail-assistant-microphone[aria-pressed="true"] { background: #8a2a1f; border-color: #8a2a1f; color: white; }
 #trail-assistant-status { font-size: .875rem; line-height: 1.5; }
 #trail-assistant-response { border-top: 1px solid #d8ddd6; margin-top: 16px; }
 #trail-assistant-answer { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
