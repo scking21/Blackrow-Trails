@@ -13,8 +13,7 @@
       "description": "Popular loop in Lost Dutchman State Park beneath the Flatiron, with classic views of the Superstition cliffs and spring wildflowers.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "siphon-draw-to-flatiron",
@@ -28,8 +27,7 @@
       "description": "Brutal scramble up Siphon Draw to the Flatiron summit. Steep slickrock and Class 3 climbing near the top; no shade, carry ample water.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "peralta-trail",
@@ -43,8 +41,7 @@
       "description": "Climbs Peralta Canyon to Fremont Saddle and the iconic view of Weavers Needle. The most famous hike in the range.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "hieroglyphic-trail",
@@ -58,8 +55,7 @@
       "description": "Gentle desert approach to a canyon pool ringed by Hohokam petroglyphs. Busy on weekends; start early.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "wave-cave-trail",
@@ -73,8 +69,7 @@
       "description": "Short steep climb to a wind-carved cave that frames a perfect \"wave.\" Loose final pitch; hands needed near the top.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "first-water-dutchman",
@@ -88,8 +83,7 @@
       "description": "Rolling desert loop from the First Water trailhead through saguaro flats and washes — a gateway into the Dutchman backcountry.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "massacre-grounds-trail",
@@ -103,8 +97,7 @@
       "description": "Quiet route toward a seasonal waterfall below the cliffs, steeped in Lost Dutchman lore. Faint tread past the falls junction.",
       "land": "National Forest",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "lost-goldmine-trail",
@@ -118,8 +111,7 @@
       "description": "Mostly level trail tracing the southern base of the range across an easement corridor. Big views with little climbing.",
       "land": "Private",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "riverside-loop",
@@ -133,8 +125,7 @@
       "description": "Gentle riverside loop along the Arkansas corridor. Great for families; mostly flat with picnic spots.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "pinyon-bluffs-trail",
@@ -148,8 +139,7 @@
       "description": "Open pinyon-juniper country with broad valley views. Exposed — bring sun protection.",
       "land": "BLM",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "aspen-vista-trail",
@@ -163,8 +153,7 @@
       "description": "Switchbacks through aspen groves to a ridgeline overlook. Spectacular in late September.",
       "land": "National Forest",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "granite-creek-trail",
@@ -178,8 +167,7 @@
       "description": "Follows a tumbling creek past granite outcrops. Several crossings — poles recommended in early summer.",
       "land": "National Forest",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "cottonwood-flats",
@@ -193,8 +181,7 @@
       "description": "Short, level walk through cottonwood bottomland. Good birding at dawn.",
       "land": "BLM",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "summit-ridge-traverse",
@@ -208,8 +195,7 @@
       "description": "Strenuous above-treeline traverse with sustained exposure and route-finding. Alpine start advised; afternoon storms common.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "cirque-lake-climb",
@@ -223,8 +209,7 @@
       "description": "Steep climb to a glacial cirque lake at 12,100 ft. Talus near the top; sturdy boots essential.",
       "land": "Wilderness",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "overlook-spur",
@@ -238,8 +223,7 @@
       "description": "Climbs from the river canyon to a rim overlook of the Sawatch Range. Rocky tread in the upper half.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": null,
-      "hasMappedRoute": false
+      "sourceURL": null
     },
     {
       "id": "memorial-park-seymour-lieberman-trail",
@@ -253,8 +237,7 @@
       "description": "Popular crushed-granite walking and running loop in Memorial Park. The City of Houston publishes the loop distance as 2.88 miles.",
       "land": "City Park",
       "sourceLabel": null,
-      "sourceURL": "https://www.houstontx.gov/abouthouston/memorialpark.html",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.houstontx.gov/abouthouston/memorialpark.html"
     },
     {
       "id": "houston-arboretum-trail-network",
@@ -268,8 +251,7 @@
       "description": "Public nature trails through woodland, meadow, pond, and wetland habitats inside Memorial Park. Choose a short loop or combine trails for a longer walk.",
       "land": "Nature Center",
       "sourceLabel": null,
-      "sourceURL": "https://houstonarboretum.org/visit/trails/",
-      "hasMappedRoute": false
+      "sourceURL": "https://houstonarboretum.org/visit/trails/"
     },
     {
       "id": "terry-hershey-hike-bike-trail",
@@ -283,8 +265,7 @@
       "description": "Long public greenway following Buffalo Bayou through west Houston, with walking, running, and cycling access points along the corridor.",
       "land": "County Park",
       "sourceLabel": null,
-      "sourceURL": "https://cp4.harriscountytx.gov/Explore/Parks/Precinct-4-Parks/terry-hershey-park",
-      "hasMappedRoute": false
+      "sourceURL": "https://cp4.harriscountytx.gov/Explore/Parks/Precinct-4-Parks/terry-hershey-park"
     },
     {
       "id": "lake-houston-wilderness-park-trails",
@@ -298,8 +279,7 @@
       "description": "Forested dirt and natural-surface trail network. The city names Ameri-Trail, Loggers Loop, Yaupon, Dogwood, Forest, Peach Creek North and South, and Magnolia trails.",
       "land": "City Wilderness Park",
       "sourceLabel": null,
-      "sourceURL": "https://www.houstontx.gov/parks/lakehoustonpark.html",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.houstontx.gov/parks/lakehoustonpark.html"
     },
     {
       "id": "sheldon-lake-pond-loop-trail",
@@ -313,8 +293,7 @@
       "description": "Accessible loop past former hatchery ponds restored as wetland habitat. The broader park has about two miles of accessible trails and free entry.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/sheldon-lake/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/sheldon-lake/trails-info"
     },
     {
       "id": "brazos-bend-creekfield-lake-ada-trail",
@@ -328,8 +307,7 @@
       "description": "Fully paved wetland trail with interpretive exhibits, an accessible boardwalk, observation deck, and shaded rest areas.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info"
     },
     {
       "id": "brazos-bend-elm-lake-loop",
@@ -343,8 +321,7 @@
       "description": "Popular wetland loop with strong wildlife-viewing opportunities. Alligators are common in the park; follow posted safety guidance.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info"
     },
     {
       "id": "brazos-bend-forty-acre-lake-trail",
@@ -358,8 +335,7 @@
       "description": "Wetland loop through several aquatic habitats and a well-known area for viewing American alligators from a safe distance.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/brazos-bend/trails-info"
     },
     {
       "id": "huntsville-chinquapin-trail",
@@ -373,8 +349,7 @@
       "description": "Long forest loop around Lake Raven through pine and hardwood habitat. Check the park for wet-weather closures before travel.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/huntsville/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/huntsville/trails-info"
     },
     {
       "id": "stephen-f-austin-state-park-trails",
@@ -388,8 +363,7 @@
       "description": "Five miles of hiking and biking trails along the Brazos River through hardwood forest and upland swamp, plus a short interpretive nature trail.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/stephen-f-austin",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/stephen-f-austin"
     },
     {
       "id": "galveston-island-state-park-trails",
@@ -403,8 +377,7 @@
       "description": "Coastal walking network with prairie, marsh, oak mott, and bay views. Use the official trail map to distinguish walking routes from paddling trails.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/galveston-island/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/galveston-island/trails-info"
     },
     {
       "id": "village-creek-state-park-trails",
@@ -418,8 +391,7 @@
       "description": "Piney Woods walking trails through floodplain forest near Village Creek. Check water and trail conditions after heavy rain.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/village-creek/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/village-creek/trails-info"
     },
     {
       "id": "lone-star-hiking-trail",
@@ -433,8 +405,7 @@
       "description": "Long-distance hiking-only route across Sam Houston National Forest. This marker is a representative access point, not the start of every section.",
       "land": "National Forest",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/huntsville",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/huntsville"
     },
     {
       "id": "sam-houston-multiple-use-trails",
@@ -448,8 +419,7 @@
       "description": "Designated Sam Houston National Forest network shared by hikers, cyclists, horses, and registered OHVs on permitted sections. Call the ranger office for current status.",
       "land": "National Forest",
       "sourceLabel": null,
-      "sourceURL": "https://www.fs.usda.gov/r08/texas/recreation/234-trailhead-sam-houston-national-forest",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.fs.usda.gov/r08/texas/recreation/234-trailhead-sam-houston-national-forest"
     },
     {
       "id": "big-thicket-kirby-nature-trail",
@@ -463,8 +433,7 @@
       "description": "Three linked loops through dense thicket, bald-cypress slough, and the Village Creek corridor. Extend via Turkey Creek and Sandhill Loop.",
       "land": "National Preserve",
       "sourceLabel": null,
-      "sourceURL": "https://www.nps.gov/thingstodo/hike-the-kirby-nature-trail.htm",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.nps.gov/thingstodo/hike-the-kirby-nature-trail.htm"
     },
     {
       "id": "big-thicket-pitcher-plant-trail",
@@ -478,8 +447,7 @@
       "description": "Family-friendly walk through wetland pine savannah where carnivorous pitcher plants grow. Bring water and insect repellent.",
       "land": "National Preserve",
       "sourceLabel": null,
-      "sourceURL": "https://www.nps.gov/bith/planyourvisit/hiking.htm",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.nps.gov/bith/planyourvisit/hiking.htm"
     },
     {
       "id": "barton-creek-greenbelt-main-trail",
@@ -493,8 +461,7 @@
       "description": "Rugged limestone greenbelt with multiple trailheads, creek crossings, swimming holes, and more than 12 miles of connected routes.",
       "land": "City Greenbelt",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/barton-creek-greenbelt",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/barton-creek-greenbelt"
     },
     {
       "id": "ann-roy-butler-hike-bike-trail",
@@ -508,8 +475,7 @@
       "description": "Urban loop around Lady Bird Lake with skyline, river, park, and boardwalk sections. The route has many access points and can be walked in shorter segments.",
       "land": "City Trail",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/ann-and-roy-butler-hike-and-bike-trail-and-boardwalk-lady-bird-lake",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/ann-and-roy-butler-hike-and-bike-trail-and-boardwalk-lady-bird-lake"
     },
     {
       "id": "emma-long-turkey-creek-trail",
@@ -523,8 +489,7 @@
       "description": "Natural-surface creek trail in Emma Long Metropolitan Park. The city directory lists it for hiking and off-leash use; follow current posted rules.",
       "land": "City Park",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "lower-bull-creek-greenbelt-trail",
@@ -538,8 +503,7 @@
       "description": "Greenbelt route along Bull Creek with limestone terrain and natural-surface sections. Water levels and footing can change after rain.",
       "land": "City Greenbelt",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "st-edwards-greenbelt-trail",
@@ -553,8 +517,7 @@
       "description": "Shared-use Hill Country greenbelt trail with creekside and rocky upland sections in northwest Austin.",
       "land": "City Greenbelt",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "walnut-creek-metro-park-trail",
@@ -568,8 +531,7 @@
       "description": "Shared-use natural-surface trail network through Walnut Creek Metropolitan Park. Expect cyclists and multiple route junctions.",
       "land": "City Park",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "mary-moore-searight-park-trail",
@@ -583,8 +545,7 @@
       "description": "Shared-use loop system through a large south Austin park, with wooded, meadow, and creekside sections.",
       "land": "City Park",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "stephenson-nature-preserve-trail",
@@ -598,8 +559,7 @@
       "description": "Hiking-only route network through a wooded nature preserve and outdoor education area in south Austin.",
       "land": "City Nature Preserve",
       "sourceLabel": null,
-      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.austintexas.gov/parks/locations/trail-directory"
     },
     {
       "id": "mckinney-falls-onion-creek-trail",
@@ -613,8 +573,7 @@
       "description": "Hard-surface trail suitable for walking, strollers, and road bikes. Onion Creek can flood after rainfall, so check current conditions.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/mckinney-falls/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/mckinney-falls/trails-info"
     },
     {
       "id": "mckinney-falls-rock-shelter-trail",
@@ -628,8 +587,7 @@
       "description": "Hiking-only natural-surface route to a historic rock shelter. Some park trails require crossing Lower Falls and may be inaccessible at high water.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/mckinney-falls/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/mckinney-falls/trails-info"
     },
     {
       "id": "pedernales-twin-falls-nature-trail",
@@ -643,8 +601,7 @@
       "description": "Short Hill Country nature trail to a scenic overlook. The river can rise rapidly; obey closures and stay out of restricted falls areas.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/pedernales-falls",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/pedernales-falls"
     },
     {
       "id": "pedernales-wolf-mountain-loop",
@@ -658,8 +615,7 @@
       "description": "Hill Country loop around Tobacco and Wolf mountains, with scenic vistas, springs, and small canyons along Mescal and Tobacco creeks.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/publications/pwdpubs/media/park_maps/pwd_mp_p4507_0026n.pdf",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/publications/pwdpubs/media/park_maps/pwd_mp_p4507_0026n.pdf"
     },
     {
       "id": "enchanted-rock-summit-trail",
@@ -673,8 +629,7 @@
       "description": "Direct exposed climb up the granite dome. Carry water, avoid thunderstorms, and check capacity and reservation guidance before driving out.",
       "land": "State Natural Area",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/enchanted-rock/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/enchanted-rock/trails-info"
     },
     {
       "id": "enchanted-rock-loop-trail",
@@ -688,8 +643,7 @@
       "description": "Longer route circling the granite formations with access to connecting trails. Terrain is exposed and can be very hot.",
       "land": "State Natural Area",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/enchanted-rock/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/enchanted-rock/trails-info"
     },
     {
       "id": "colorado-bend-gorman-falls-trail",
@@ -703,8 +657,7 @@
       "description": "Rocky route to a 70-foot spring-fed waterfall, ending with a steep, slippery descent. Bring more water than expected.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/colorado-bend/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/colorado-bend/trails-info"
     },
     {
       "id": "colorado-bend-spicewood-canyon-trail",
@@ -718,8 +671,7 @@
       "description": "Ridge route above Spicewood Springs Creek with overlooks of spring-fed pools, waterfalls, and the Colorado River canyon.",
       "land": "State Park",
       "sourceLabel": null,
-      "sourceURL": "https://tpwd.texas.gov/state-parks/colorado-bend/trails-info",
-      "hasMappedRoute": false
+      "sourceURL": "https://tpwd.texas.gov/state-parks/colorado-bend/trails-info"
     },
     {
       "id": "balcones-doeskin-rimrock-trail",
@@ -733,8 +685,7 @@
       "description": "Difficult natural and rocky loop at Balcones Canyonlands National Wildlife Refuge. Open during daylight; pets, bicycles, and horses are not allowed.",
       "land": "National Wildlife Refuge",
       "sourceLabel": null,
-      "sourceURL": "https://www.fws.gov/refuge/balcones-canyonlands/visit-us",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.fws.gov/refuge/balcones-canyonlands/visit-us"
     },
     {
       "id": "balcones-doeskin-indiangrass-trail",
@@ -748,8 +699,7 @@
       "description": "Moderate natural-surface refuge trail reached by portions of the Rimrock and Shin Oak trails. Open during daylight; pets are not allowed.",
       "land": "National Wildlife Refuge",
       "sourceLabel": null,
-      "sourceURL": "https://www.fws.gov/refuge/balcones-canyonlands/visit-us",
-      "hasMappedRoute": false
+      "sourceURL": "https://www.fws.gov/refuge/balcones-canyonlands/visit-us"
     },
     {
       "id": "reimers-ranch-hiking-trails",
@@ -763,8 +713,7 @@
       "description": "Large Travis County park with hiking, river access, multi-use trails, and backcountry routes. Guided walks may be paused, but designated trails remain available subject to conditions.",
       "land": "County Park",
       "sourceLabel": null,
-      "sourceURL": "https://parks.traviscountytx.gov/parks/reimers-ranch",
-      "hasMappedRoute": false
+      "sourceURL": "https://parks.traviscountytx.gov/parks/reimers-ranch"
     },
     {
       "id": "southeast-metro-primitive-hiking-trail",
@@ -778,8 +727,7 @@
       "description": "Primitive path through forested hills and valleys, past ponds and Onion Creek, with distant views toward downtown Austin. Call the park for trail status.",
       "land": "County Park",
       "sourceLabel": null,
-      "sourceURL": "https://parks.traviscountytx.gov/index.php?Itemid=124&id=18&option=com_content&view=article",
-      "hasMappedRoute": false
+      "sourceURL": "https://parks.traviscountytx.gov/index.php?Itemid=124&id=18&option=com_content&view=article"
     }
   ]
 }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Blackrow Trails</title>
-  <style>body{background:#063f33;color:white;font:1.1rem system-ui;padding:4rem 2rem}button{font:inherit;padding:.8rem 1.2rem}</style>
+  <style>body{background:#0e4034;color:white;font:1.1rem system-ui;padding:4rem 2rem}button{font:inherit;padding:.8rem 1.2rem}</style>
 </head>
 <body>
   <p id="status" role="status">Starting Blackrow Trails…</p>
@@ -48,6 +48,8 @@
         console.warn('Native startup failed', error);
         document.getElementById('status').textContent = 'Blackrow could not finish starting. Please try again.';
         retry.hidden = false;
+        // The splash only auto-hides from index.html; reveal this page so Try again is reachable.
+        try { void window.Capacitor?.Plugins?.SplashScreen?.hide(); } catch {}
       }
     }
     document.getElementById('retry').addEventListener('click', startNativeApp);

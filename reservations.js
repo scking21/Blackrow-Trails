@@ -235,7 +235,7 @@ CREATE INDEX IF NOT EXISTS idx_pending_trip_imports_claimed
   .res-empty{color:#778;margin-top:16px}
   .res-privacy{color:#7a8;font-size:0.75rem;margin-top:16px;text-align:center}
   .res-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:9999}
-  .res-sheet{background:#fff;border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:680px;max-height:88vh;overflow:auto;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+  .res-sheet{background:#fff;border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:680px;max-height:88vh;overflow:auto;padding-bottom:max(16px,var(--safe-bottom))}
   .res-sheet-title{margin:0 0 12px}
   .res-warn{background:#fff3cd;border:1px solid #ffe69c;color:#664d03;padding:8px 10px;border-radius:8px;font-size:0.8125rem;margin-bottom:10px}
   .res-form{display:flex;flex-direction:column;gap:10px}

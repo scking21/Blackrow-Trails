@@ -1,5 +1,11 @@
 
   :root {
+    /* Safe-area insets. WebKit's env() is sometimes 0 for a whole session on iOS; the native
+       bridge publishes UIKit's values as --native-safe-* (AppDelegate.swift), so take the larger. */
+    --safe-top: max(env(safe-area-inset-top), var(--native-safe-top, 0px));
+    --safe-right: max(env(safe-area-inset-right), var(--native-safe-right, 0px));
+    --safe-bottom: max(env(safe-area-inset-bottom), var(--native-safe-bottom, 0px));
+    --safe-left: max(env(safe-area-inset-left), var(--native-safe-left, 0px));
     --panel-bg: #ffffff;
     --border: #d8d2c4;
     --text: #2b2a26;
@@ -375,7 +381,7 @@
 
   /* ---- Mobile / native (Capacitor) polish ---- */
   /* Respect notches & status bars on both platforms */
-  header { padding-top: env(safe-area-inset-top); min-height: calc(52px + env(safe-area-inset-top)); }
+  header { padding-top: var(--safe-top); min-height: calc(52px + var(--safe-top)); }
 
   @media (max-width: 760px), (pointer: coarse) {
     /* overflow:hidden is deliberately NOT carried into the wrapped layout: with
@@ -385,7 +391,7 @@
        #region-select { max-width: 38vw } below (and by flex-wrap itself, which
        moves any overflow onto a new row instead of letting it spill). min-height
        (not height) lets the bar grow tall enough to fit every wrapped row. */
-    header { gap: 6px; padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+    header { gap: 6px; padding-left: max(10px, var(--safe-left)); padding-right: max(10px, var(--safe-right)); }
     header h1 { font-size: min(0.9375rem, 22px); margin-right: 2px; white-space: nowrap; flex-shrink: 0; }
     nav { gap: 0; }
     nav button { padding: 0 12px; font-size: min(0.8125rem, 20px); min-height: 44px; }   /* 44px = min touch target */
@@ -401,7 +407,7 @@
       border-top: 1px solid var(--border);
       box-shadow: 0 -4px 18px rgba(0,0,0,0.12);
       -webkit-overflow-scrolling: touch;
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: var(--safe-bottom);
     }
     /* Drag handle affordance on the panel */
     aside::before {
@@ -413,7 +419,7 @@
 
     /* Trails & Planner tabs: comfortable phone padding + safe areas */
     #tab-trails, #tab-planner {
-      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+      padding: 18px 16px calc(18px + var(--safe-bottom));
     }
     .state-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 
@@ -424,7 +430,7 @@
       border-top: 1px solid var(--border);
       border-radius: 16px 16px 0 0;
       box-shadow: 0 -6px 24px rgba(0,0,0,0.3);
-      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+      padding: 18px 16px calc(18px + var(--safe-bottom));
       max-height: 72vh; overflow-y: auto;
     }
   }
@@ -454,7 +460,7 @@
   /* Paywall modal */
   #paywall { position:fixed; inset:0; z-index:5000; display:none; align-items:center;
     justify-content:center; background:rgba(20,28,20,.55); padding:18px;
-    padding-bottom:calc(18px + env(safe-area-inset-bottom)); }
+    padding-bottom:calc(18px + var(--safe-bottom)); }
   #paywall.open { display:flex; }
   .pw-card { background:#fff; border-radius:16px; max-width:430px; width:100%;
     max-height:88vh; overflow-y:auto; box-shadow:0 18px 50px rgba(0,0,0,.35);
@@ -654,7 +660,7 @@
     border-top:1px solid var(--border);
     border-radius:16px 16px 0 0;
     box-shadow:0 -6px 24px rgba(0,0,0,.3);
-    padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+    padding:16px 16px calc(16px + var(--safe-bottom));
     transform:translateY(0);
     transition:transform 160ms ease-out;
   }
@@ -732,7 +738,7 @@
   }
   /* Post-commit "Trip updated — Undo" banner. Status role for screen readers. */
   .irt-updated {
-    position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom));
+    position:fixed; left:50%; bottom:calc(16px + var(--safe-bottom));
     transform:translateX(-50%);
     background:#1f3a24; color:#f4f1e8;
     border-radius:10px; padding:10px 14px;
@@ -815,13 +821,14 @@
       background: rgba(4, 58, 48, .2);
     }
     header {
-      position: relative; z-index: 1400; height: calc(84px + env(safe-area-inset-top));
-      padding: env(safe-area-inset-top) 24px 0; background: rgba(4, 58, 48, .72); border: 0;
+      position: relative; z-index: 1400; height: calc(84px + var(--safe-top));
+      padding: var(--safe-top) 24px 0; background: rgba(4, 58, 48, .72); border: 0;
       gap: 10px; overflow: visible; flex-wrap: nowrap;
     }
-    header h1 { min-width: 0; margin: 0; font-size: min(1.0625rem, 22px); font-weight: 700; letter-spacing: -.01em; }
-    .brand-mark { width: 34px; height: 34px; flex: 0 0 auto; }
-    .brand-mark img { width: 21px; height: 21px; }
+    /* The app name is the top of the hierarchy: never smaller than the page heading below it. */
+    header h1 { min-width: 0; margin: 0; font-size: min(1.75rem, 32px); font-weight: 700; letter-spacing: -.02em; }
+    .brand-mark { width: 40px; height: 40px; flex: 0 0 auto; }
+    .brand-mark img { width: 25px; height: 25px; }
     #region-select {
       margin-left: auto; width: 244px; max-width: 42vw; height: 44px; padding: 0 11px;
       border: 1px solid rgba(165, 223, 178, .42); border-radius: 14px;
@@ -829,7 +836,7 @@
     }
 
     nav {
-      position: fixed; z-index: 1500; left: 27px; right: 27px; bottom: max(8px, env(safe-area-inset-bottom));
+      position: fixed; z-index: 1500; left: 27px; right: 27px; bottom: max(8px, var(--safe-bottom));
       height: 66px; min-height: 66px; padding: 4px; border: 1px solid rgba(209, 239, 216, .58); border-radius: 18px;
       background: rgba(15, 82, 66, .88); box-shadow: 0 12px 36px rgba(2, 32, 27, .36);
     }
@@ -849,14 +856,14 @@
       /* The fixed nav must sit outside this scroll viewport. Reserve its
        * 66px box and bottom offset in the flex layout, then leave a small
        * cushion after the final readiness action. */
-      margin-bottom: calc(66px + max(8px, env(safe-area-inset-bottom)));
+      margin-bottom: calc(66px + max(8px, var(--safe-bottom)));
       padding: 0 27px 32px;
       overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
     }
     .ready-hero { display: block; padding: 0 0 17px; }
     .ready-eyebrow { display: none; }
     .ready-hero h2 {
-      margin: 0; color: var(--ready-text); font-size: min(clamp(1.75rem, 7.5vw, 2rem), 40px); font-weight: 600;
+      margin: 0; color: var(--ready-text); font-size: min(1.5rem, 28px); font-weight: 600;
       line-height: 1.02; letter-spacing: -.05em;
     }
 
@@ -1000,7 +1007,7 @@
     #trail-search {
       display: none; position: fixed; z-index: 4500; inset: 0;
       top: var(--trail-search-top, 0px); bottom: auto;
-      width: auto; height: var(--trail-search-height, 100dvh); padding: calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+      width: auto; height: var(--trail-search-height, 100dvh); padding: calc(14px + var(--safe-top)) 16px calc(14px + var(--safe-bottom));
       border: 0; border-radius: 0; background: #f3f7f0; color: #173c32; box-shadow: none; overflow: hidden;
     }
     .trail-picker-open { overflow: hidden; }
@@ -1015,7 +1022,7 @@
 
     #map-options {
       display: block; position: fixed; z-index: 1650; left: 0; right: 0; bottom: 0; width: 100%; max-height: 78dvh;
-      padding: 0 0 calc(84px + env(safe-area-inset-bottom)); color: #173c32; border: 0; border-radius: 24px 24px 0 0;
+      padding: 0 0 calc(84px + var(--safe-bottom)); color: #173c32; border: 0; border-radius: 24px 24px 0 0;
       background: #f3f7f0; box-shadow: 0 -18px 48px rgba(1, 31, 25, .4); overflow-y: auto;
       transform: translateY(110%); opacity: 0; visibility: hidden;
       transition: transform .38s cubic-bezier(.25, .8, .25, 1), opacity .28s ease, visibility .38s;
@@ -1047,7 +1054,7 @@
     }
     #tab-planner.active, #tab-reservations.active {
       display: flex; color: var(--text); background: transparent;
-      padding: 16px 12px calc(92px + env(safe-area-inset-bottom));
+      padding: 16px 12px calc(92px + var(--safe-bottom));
       overflow-x: hidden;
     }
     #tab-planner .planner-wrap, #tab-reservations #res-mount {
@@ -1066,8 +1073,8 @@
 
   @media (max-width: 600px) {
     header {
-      height: calc(128px + env(safe-area-inset-top));
-      padding: calc(12px + env(safe-area-inset-top)) 24px 12px;
+      height: calc(128px + var(--safe-top));
+      padding: calc(12px + var(--safe-top)) 24px 12px;
       flex-wrap: wrap; align-content: center; gap: 8px;
     }
     header h1 { width: 100%; flex: 0 0 100%; }
@@ -1075,7 +1082,7 @@
   }
 
   @media (max-width: 360px) {
-    header { height: calc(132px + env(safe-area-inset-top)); padding: calc(12px + env(safe-area-inset-top)) 16px 12px; flex-wrap: wrap; gap: 8px; }
+    header { height: calc(132px + var(--safe-top)); padding: calc(12px + var(--safe-top)) 16px 12px; flex-wrap: wrap; gap: 8px; }
     header h1 { width: 100%; }
     #region-select { width: 100%; max-width: 100%; margin-left: 0; }
     .trail-ring { display: none; }
@@ -1085,7 +1092,7 @@
 /* First-use guide follows the app's existing cream and forest-green palette. */
 #onboarding-dialog {
   width: min(480px, calc(100vw - 32px));
-  max-height: calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-height: calc(100dvh - 48px - var(--safe-top) - var(--safe-bottom));
   margin: auto;
   padding: 24px;
   overflow-y: auto;

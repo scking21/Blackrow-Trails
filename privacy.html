@@ -21,7 +21,7 @@
 </head>
 <body>
   <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-09-07</p>
+  <p class="updated">Last updated: 2026-09-27</p>
 
   <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
   account system and shows no ads. Most trip, reservation, and location data
@@ -78,8 +78,52 @@
   the screen is locked, subject to iOS permissions and system limits. Pause or
   Stop ends the recording watcher. This setting is off by default. You can
   change location access in iOS Settings.</p>
+  <p>When you follow a route with trail alerts, the app uses precise location
+  to check whether you are on the route, including while your phone is locked,
+  until you stop following. On Android this runs as a location foreground
+  service with an ongoing notice, and on Android 13 and later the app asks for
+  notification permission first.</p>
+  <p>While you record a track, the app reads the phone's barometer (air
+  pressure) to make elevation gain more accurate. Pressure readings stay in
+  memory; only the corrected elevations are saved with the track.</p>
   <p>The camera is used only for the augmented-reality view. The app does not
   save or send camera images.</p>
+
+  <h2>Trail status on the Lock Screen</h2>
+  <p>While trail alerts are on, the app shows the trail name, whether you are on
+  or off the route, your distance from the route, and the time of the last
+  location fix in an iOS Live Activity (Lock Screen and Dynamic Island) or an
+  Android ongoing notification. Anyone who can see your screen can read it. It
+  contains no coordinates and is removed when you stop following. You can turn
+  off Live Activities for Blackrow Trails in iOS Settings, or the Active hike
+  notification category in Android Settings.</p>
+  <p>On iPhone the app also keeps that status, with the distance rounded to 5
+  metres, in its local storage so Siri and Shortcuts can answer questions about
+  the trail you are following. It is deleted when you stop following or the next
+  time Blackrow opens, and Siri ignores it once it is 12 hours old.</p>
+
+  <h2>Trail assistant, voice questions, and Siri (iOS)</h2>
+  <p>On iPhones that support Apple Intelligence (iOS 26 and later), you can ask
+  a question about a saved trail. Apple's on-device language model answers it on
+  your iPhone. The app gives the model your question, the trail's saved public
+  details (such as its name, listed length, difficulty, and description), and
+  the trail alert status described above. It does not give the model your
+  coordinates, recorded tracks, or notes. Blackrow Trails does not send
+  questions or answers to any server, does not use a cloud model, and does not
+  save them; closing the assistant clears them. Answers can be wrong and do not
+  reflect current trail conditions.</p>
+  <p>If you ask by voice, the app uses the microphone only while you are asking.
+  Apple's speech framework transcribes the audio on your iPhone. The app does
+  not save or send the audio; the transcribed words fill in the question box and
+  are cleared with it when you close the assistant. The first time, iOS may need
+  to download Apple's speech model for your language; that download comes from
+  Apple over the internet. In the app, answers are read aloud with the iPhone's
+  built-in text-to-speech voices; through Siri, Siri reads them.</p>
+  <p>Siri and the Shortcuts app can ask a trail question, open a trail, or stop
+  trail alerts. The app handles these on your iPhone the same way. Apple's
+  handling of your Siri requests is covered by Apple's privacy policy.</p>
+  <p>The Android app and the website do not include the assistant or voice
+  questions.</p>
 
   <h2>Travel reservations</h2>
   <p>When you add a reservation by uploading an e-ticket or itinerary PDF or
@@ -221,10 +265,17 @@
     while the app is minimized or the screen is off. The app does not request
     <strong>Allow all the time</strong> or Android background-location
     permission.</li>
-    <li><strong>Notifications:</strong> on Android 13 and later, requested only
-    when you start an opted-in screen-off recording, so its ongoing service
-    notice can remain in the notification drawer. If denied, recording continues
-    and Android may show the notice only under Active apps.</li>
+    <li><strong>Notifications:</strong> on Android 13 and later, requested when
+    you start trail alerts or an opted-in screen-off recording, so the ongoing
+    notices can remain in the notification drawer. If denied, alerts and
+    recording continue and Android may show the notice only under Active
+    apps.</li>
+    <li><strong>Microphone and speech recognition (iOS):</strong> used only while
+    you ask the trail assistant a question by voice. Audio is transcribed on your
+    iPhone and not saved.</li>
+    <li><strong>Motion &amp; Fitness (iOS):</strong> lets the app read the
+    barometer while you record a track, to improve elevation gain. Android needs
+    no permission for this.</li>
     <li><strong>Camera:</strong> used only for the augmented-reality view. No
     photos are stored or sent.</li>
   </ul>
