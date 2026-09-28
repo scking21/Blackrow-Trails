@@ -29,6 +29,9 @@ const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline
 const ASSET_CACHE = 'trail-assets-632618428bc7';  // substituted by scripts/emit-sw.mjs from asset bytes
 const DATA_CACHE  = 'trail-data-v1';    // page-side last-good overlay GeoJSON (must survive SW updates)
 const MAX_TILES   = 4000;            // shared ceiling with page-side offline region downloads
+// How long a network-first page or asset may take before a stored copy is served
+// (backcountry signal can stall a request far longer than it takes to fail).
+const NETWORK_WAIT_MS = 3000;
 
 // Dev cache-buster: on localhost, serve the app shell network-first so edits show
 // immediately. In the packaged native app (capacitor:// / https://localhost is the
@@ -56,6 +59,17 @@ const SHELL_ASSETS = [
   './app.js',
 ];
 
+// Exact shell addresses, resolved against this worker's own URL so './' is the
+// site root (not an empty suffix that matches every URL) and a sub-path
+// deployment resolves under its own prefix.
+const SHELL_URLS = new Set(SHELL_ASSETS.map((a) => new URL(a, self.location.href).href));
+
+// SRI digests of the built shell files, substituted by scripts/emit-sw.mjs from
+// the final www/ bytes. Install refuses a file the CDN has not yet updated, so a
+// half-propagated deploy leaves the previous worker in place instead of caching
+// a mixed shell under the new name. Empty in source, so tests and dev skip it.
+const SHELL_INTEGRITY = {"./":"sha256-1/JKhz7/xl8/rlACaXAHFUOeQgRsGsHsGh9NkaM1XXw=","./index.html":"sha256-1/JKhz7/xl8/rlACaXAHFUOeQgRsGsHsGh9NkaM1XXw=","./licenses.html":"sha256-jUvY/PCZ0gkB4h8RsB/3J0OEOXv8+7Bd1OkwRwe2KQs=","./styles.css":"sha256-6w4zi+w0GpmePFuVNqPzRzH14WRgwB9I1nLXON13HhE=","./vendor/leaflet/leaflet.css":"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=","./vendor/leaflet/leaflet.js":"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=","./geo.js":"sha256-ADL858ifjAYDdnixg1Nsz3z966CPuiQuXqYCUGFeg04=","./ar.js":"sha256-2EkEN+HzDChlM56X2e/y6+Uf65c8BIK5tNHpFdwdOCA=","./billing.js":"sha256-NiaHeSNOUa3MSWoF6FS2+Hd/nEYloqHdDbo+0s+4Wgo=","./share.js":"sha256-tv0b9YhHuJC03U54FB1rM0cQKAkw5bx5U4kqDYGrLWM=","./analytics.js":"sha256-X6j+VKBZCHw075BwLHcN4e1JDqRB30QUxuSN4d6fPw0=","./reservations.js":"sha256-PRYkgsOuBMUIOJHuU0z/epzu/Q3t9hRLCepaLbQoId0=","./app.js":"sha256-CZXR3TmHZMU+YH1gQiX4KNrjhfPOC8VaiI3DmxcMFs8="};
+
 // Vendored reservations assets (loaded on demand). Cached on first fetch so the
 // Travel feature keeps working offline afterwards.
 const isResAsset = (url) =>
@@ -74,7 +88,7 @@ self.addEventListener('install', (e) => {
       // never activate.
       // A new shell cache must not inherit still-fresh HTTP-cache bytes from
       // the previous release (new HTML with old JavaScript breaks the UI).
-      .then((c) => c.addAll(SHELL_ASSETS.map(url => new Request(url, { cache: 'reload' }))))
+      .then((c) => c.addAll(SHELL_ASSETS.map(url => new Request(url, { cache: 'reload', integrity: SHELL_INTEGRITY[url] || '' }))))
       .then(() => self.skipWaiting())
   );
 });
@@ -186,28 +200,42 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // App shell (same-origin + Leaflet CDN).
-  // Live-data APIs are NEVER shell assets and must never be captured here:
-  // they are "always fresh" by design (see below), and this branch's prod path
-  // is cache-first, so a captured API response would be pinned stale even while
-  // online. Note SHELL_ASSETS contains './', whose replace() reduces to '' and
-  // `url.endsWith('')` matches EVERY url — without this exclusion the branch
-  // swallows all remaining GETs on the page.
-  const isLiveApi = /services\.arcgis\.com|nationalmap\.gov|api\.weather\.gov|api\.rainviewer\.com|overpass-api\.de|overpass\.kumi\.systems|mesonet\.agron\.iastate\.edu/.test(url);
-  if (!isLiveApi && (req.destination === 'document' || SHELL_ASSETS.some((a) => url.endsWith(a.replace('./', ''))))) {
-    e.respondWith((async () => {
-      const cache = await caches.open(SHELL_CACHE);
-      const fromNet = () => fetch(req).then((res) => { if (res.ok) cache.put(req, res.clone()); return res; });
-      if (DEV) {
-        // Dev: network-first so edits show on reload; fall back to cache if offline.
-        try { return await fromNet(); } catch { return (await cache.match(req, { ignoreSearch: true })) || Response.error(); }
-      }
-      // Prod: cache-first. A hit is returned as-is and is never revalidated, so
-      // the shell changes only when install repopulates a NEW SHELL_CACHE name.
-      const hit = await cache.match(req, { ignoreSearch: true });
-      return hit || (await fromNet().catch(() => null)) || Response.error();
-    })());
-  }
+  // Cross-origin requests that are not tiles (live APIs, radar images) are
+  // always fresh: no respondWith, so the browser fetches them directly.
+  const target = new URL(url, self.location.href);
+  if (target.origin !== self.location.origin) return;
+  target.search = '';
 
-  // Live data API calls (USGS/PAD-US) are intentionally NOT cached — always fresh.
+  e.respondWith((async () => {
+    const cache = await caches.open(SHELL_CACHE);
+    const store = (res) => { if (res.ok) cache.put(req, res.clone()); return res; };
+    const stored = () => cache.match(req, { ignoreSearch: true });
+    // Prod: the shell is cache-first. It changes only when install fills a NEW
+    // SHELL_CACHE name, which happens whenever a shell file's bytes change.
+    if (!DEV && SHELL_URLS.has(target.href)) {
+      return (await stored()) || (await fetch(req).then(store).catch(() => null)) || Response.error();
+    }
+    // Everything else same-origin (terms/privacy/support, icons, JSON) can change
+    // without renaming the shell cache, so it is network-first and revalidated
+    // past the HTTP cache. Dev treats the shell the same way so edits show on
+    // reload. A navigation keeps its 'manual' redirect mode: a followed redirect
+    // cannot answer a navigation. On weak signal the network gets NETWORK_WAIT_MS
+    // before a stored copy is served; a late response still refreshes the cache.
+    // A network answer only counts once its whole body has arrived and been
+    // stored: headers alone can arrive promptly while the body stalls, and the
+    // worker must stay alive until the refreshed copy is actually written.
+    // Opaque redirects and errors are not ok, so they pass through uncached.
+    const complete = async (res) => {
+      if (!res.ok) return res;
+      const full = new Response(await res.blob(), { status: res.status, statusText: res.statusText, headers: res.headers });
+      await cache.put(req, full.clone()).catch(() => undefined);
+      return full;
+    };
+    const network = fetch(url, { cache: 'no-cache', redirect: req.redirect || 'follow' }).then(complete);
+    e.waitUntil(network.catch(() => undefined));
+    const copy = await stored();
+    if (!copy) return network.catch(() => Response.error());
+    const waited = new Promise((resolve) => setTimeout(() => resolve(copy), NETWORK_WAIT_MS));
+    return Promise.race([network, waited]).catch(() => copy);
+  })());
 });
