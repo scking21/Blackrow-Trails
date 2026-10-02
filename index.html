@@ -412,7 +412,12 @@
     <h2 id="trail-assistant-title">Trail assistant</h2>
     <button id="trail-assistant-close" type="button" aria-label="Close trail assistant">Close</button>
   </div>
-  <p class="planner-sub">Powered by Apple Intelligence on this device. Questions and answers are not saved by Blackrow or sent to an AI service.</p>
+  <p id="trail-assistant-privacy" class="planner-sub">Answers are generated on this device. Questions and answers are not saved by Blackrow or sent to an AI service.</p>
+  <div id="trail-assistant-processing-controls" hidden>
+    <label for="trail-assistant-processing">Answer using</label>
+    <select id="trail-assistant-processing"><option value="on-device">On-device model</option><option value="private-cloud-compute">Apple Private Cloud Compute</option></select>
+    <label id="trail-assistant-consent-label" hidden><input id="trail-assistant-consent" type="checkbox"> Send this question and the selected public trail details to Apple Private Cloud Compute. Do not include personal information in your question.</label>
+  </div>
   <label for="trail-assistant-trail">Trail</label>
   <select id="trail-assistant-trail"></select>
   <p id="trail-assistant-context" class="planner-sub"></p>
@@ -424,6 +429,7 @@
       <button id="trail-assistant-microphone" type="button" aria-pressed="false" disabled>Ask by voice</button>
       <button id="trail-assistant-send" type="submit" disabled>Ask</button>
       <button id="trail-assistant-stop" type="button" hidden>Stop</button>
+      <button id="trail-assistant-download" type="button" hidden>Download on-device model</button>
       <button id="trail-assistant-refresh" type="button">Check availability</button>
     </div>
   </form>
@@ -432,7 +438,8 @@
     <h3>Answer</h3>
     <p id="trail-assistant-answer"></p>
   </section>
-  <p class="planner-sub">Voice questions are transcribed on this device. Each question starts fresh. Answers can be mistaken. Saved trail details and trail alert status cannot confirm current closures, weather or safe passage, and the assistant does not create a navigable route.</p>
+  <p id="trail-assistant-voice-note" class="planner-sub">Voice questions are transcribed on this device.</p>
+  <p class="planner-sub">Each question starts fresh. Answers can be mistaken. Saved trail details and trail alert status cannot confirm current closures, weather or safe passage, and the assistant does not create a navigable route.</p>
 </dialog>
 
 <div class="tab" id="tab-reservations">

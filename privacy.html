@@ -21,7 +21,7 @@
 </head>
 <body>
   <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-09-27</p>
+  <p class="updated">Last updated: 2026-10-02</p>
 
   <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
   account system and shows no ads. Most trip, reservation, and location data
@@ -122,8 +122,31 @@
   <p>Siri and the Shortcuts app can ask a trail question, open a trail, or stop
   trail alerts. The app handles these on your iPhone the same way. Apple's
   handling of your Siri requests is covered by Apple's privacy policy.</p>
-  <p>The Android app and the website do not include the assistant or voice
-  questions.</p>
+  <p>Apple Private Cloud Compute is not enabled in this build. Future activation
+  requires updated disclosures and an explicit choice for each cloud question.</p>
+  <p>The website does not include the assistant. The Android app has no voice
+  questions or Siri; its assistant is described next.</p>
+
+  <h2>On-device trail questions on Android</h2>
+  <p>On Android devices that support Google's on-device language model, you can
+  type a question about a saved trail. That model answers it on your phone through the
+  ML Kit SDK. The app gives the model your question, the trail's saved public
+  details, and the selected trail's alert status and rounded distance from the
+  route. It does not give the model your coordinates, recorded tracks, or notes.
+  Blackrow Trails does not send questions or answers to any server, does not use
+  a cloud model, and does not save them; closing the assistant clears them.
+  Answers are shown as text and are not read aloud. Answers can be wrong and do
+  not reflect current trail conditions.</p>
+  <p>Setting up the model is a download from Google that you start yourself and
+  that needs internet access. On a device that does not support the model, saved
+  trail details and maps keep working and questions are unavailable.</p>
+  <p>Google's ML Kit SDK sends diagnostic and usage metrics to
+  Google, including device/app information, identifiers, performance and event
+  data, input/output sizes and configured languages. Google states that prompt
+  content and generated outputs are not sent to its servers. The SDK may also
+  contact Google for model and configuration updates. See
+  <a href="https://developers.google.com/ml-kit/terms">ML Kit privacy terms</a> and
+  <a href="https://developers.google.com/ml-kit/android-data-disclosure">data disclosure</a>.</p>
 
   <h2>Travel reservations</h2>
   <p>When you add a reservation by uploading an e-ticket or itinerary PDF or
@@ -183,7 +206,8 @@
   Trails does not control data after another app or website receives it.</p>
 
   <h2>Third-party analytics and crash reports</h2>
-  <p>Blackrow Trails does not send usage analytics or crash reports to
+  <p>Except for the Android ML Kit diagnostic and usage metrics described above,
+  Blackrow Trails does not send usage analytics or crash reports to
   third-party services. </p>
 
   <h2>Subscriptions and purchases</h2>
@@ -282,7 +306,7 @@
 
   <h2>Children</h2>
   <p>Blackrow Trails is a general-audience outdoor app and is not directed to
-  children under 13. The app does not send usage data to third-party analytics services.</p>
+  children under 13. Android SDK diagnostics are described above.</p>
 
   <h2>Policy changes</h2>
   <p>We update the date at the top of this policy when the app's data practices
