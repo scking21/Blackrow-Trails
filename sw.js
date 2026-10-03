@@ -9,7 +9,7 @@
 // but not sw.js, so every returning browser kept serving the broken stylesheet
 // out of 'trail-shell-v8'. Derived from the shell bytes for exactly the reason
 // ASSET_CACHE is — the manual discipline has now failed for both caches.
-const SHELL_CACHE = 'trail-shell-d804f6d73c2e';  // substituted by scripts/emit-sw.mjs from shell bytes
+const SHELL_CACHE = 'trail-shell-2192f7451735';  // substituted by scripts/emit-sw.mjs from shell bytes
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -68,7 +68,7 @@ const SHELL_URLS = new Set(SHELL_ASSETS.map((a) => new URL(a, self.location.href
 // the final www/ bytes. Install refuses a file the CDN has not yet updated, so a
 // half-propagated deploy leaves the previous worker in place instead of caching
 // a mixed shell under the new name. Empty in source, so tests and dev skip it.
-const SHELL_INTEGRITY = {"./":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./index.html":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./licenses.html":"sha256-jUvY/PCZ0gkB4h8RsB/3J0OEOXv8+7Bd1OkwRwe2KQs=","./styles.css":"sha256-6w4zi+w0GpmePFuVNqPzRzH14WRgwB9I1nLXON13HhE=","./vendor/leaflet/leaflet.css":"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=","./vendor/leaflet/leaflet.js":"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=","./geo.js":"sha256-ADL858ifjAYDdnixg1Nsz3z966CPuiQuXqYCUGFeg04=","./ar.js":"sha256-2EkEN+HzDChlM56X2e/y6+Uf65c8BIK5tNHpFdwdOCA=","./billing.js":"sha256-NiaHeSNOUa3MSWoF6FS2+Hd/nEYloqHdDbo+0s+4Wgo=","./share.js":"sha256-tv0b9YhHuJC03U54FB1rM0cQKAkw5bx5U4kqDYGrLWM=","./analytics.js":"sha256-X6j+VKBZCHw075BwLHcN4e1JDqRB30QUxuSN4d6fPw0=","./reservations.js":"sha256-PRYkgsOuBMUIOJHuU0z/epzu/Q3t9hRLCepaLbQoId0=","./app.js":"sha256-1iXzOSuERZ6K17aNxMfSvAdv4rTh2DAsmLxTywrsKys="};
+const SHELL_INTEGRITY = {"./":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./index.html":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./licenses.html":"sha256-jUvY/PCZ0gkB4h8RsB/3J0OEOXv8+7Bd1OkwRwe2KQs=","./styles.css":"sha256-6w4zi+w0GpmePFuVNqPzRzH14WRgwB9I1nLXON13HhE=","./vendor/leaflet/leaflet.css":"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=","./vendor/leaflet/leaflet.js":"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=","./geo.js":"sha256-dkNkAjs10NsEVPvF6wmdsQwccBw6sTeM77gOMM37XCw=","./ar.js":"sha256-2EkEN+HzDChlM56X2e/y6+Uf65c8BIK5tNHpFdwdOCA=","./billing.js":"sha256-NiaHeSNOUa3MSWoF6FS2+Hd/nEYloqHdDbo+0s+4Wgo=","./share.js":"sha256-tv0b9YhHuJC03U54FB1rM0cQKAkw5bx5U4kqDYGrLWM=","./analytics.js":"sha256-X6j+VKBZCHw075BwLHcN4e1JDqRB30QUxuSN4d6fPw0=","./reservations.js":"sha256-kRWeqRBBX2SxTOlvigEuxNaNWGVyNJTBsuklMLLUlAI=","./app.js":"sha256-0wEqkDE1ZjqWYA1fQBEL4CHiFXKFYbUKGnsgoW5zXHE="};
 
 // Vendored reservations assets (loaded on demand). Cached on first fetch so the
 // Travel feature keeps working offline afterwards.
@@ -121,14 +121,75 @@ const isCorsTile = (url) => /s3\.amazonaws\.com\/elevation-tiles-prod\//.test(ur
 // still but can saturate storage I/O on low-end devices mid-session — the
 // chunk cap keeps the trim polite.
 const TRIM_CHUNK = 64;
-async function trimTiles() {
-  const cache = await caches.open(TILE_CACHE);
-  const keys = await cache.keys();
-  if (keys.length <= MAX_TILES) return;
-  const doomed = keys.slice(0, keys.length - MAX_TILES);
-  for (let i = 0; i < doomed.length; i += TRIM_CHUNK) {
-    await Promise.all(doomed.slice(i, i + TRIM_CHUNK).map((k) => cache.delete(k)));
+let pendingTrim = null;
+let trimRequested = false;
+function trimTiles() {
+  trimRequested = true;
+  if (!pendingTrim) {
+    // Many tile misses finish together. Sharing one trim keeps the 64-operation
+    // budget global and avoids enumerating/deleting the same keys for each tile.
+    pendingTrim = Promise.resolve().then(async () => {
+      try {
+        const cache = await caches.open(TILE_CACHE);
+        do {
+          trimRequested = false;
+          const keys = await cache.keys();
+          const doomed = keys.slice(0, Math.max(0, keys.length - MAX_TILES));
+          for (let i = 0; i < doomed.length; i += TRIM_CHUNK) {
+            // Wait for the whole chunk even if storage rejects a deletion. A
+            // failed trim must not leave work running outside the shared budget.
+            const results = await Promise.allSettled(doomed.slice(i, i + TRIM_CHUNK).map((k) => cache.delete(k)));
+            const failure = results.find(result => result.status === 'rejected');
+            if (failure) throw failure.reason;
+          }
+        } while (trimRequested); // Include writes that arrived after the snapshot.
+      } finally {
+        // Clear inside this async turn: a later writer starts a fresh trim even
+        // if it arrives just before this promise's completion handlers run.
+        pendingTrim = null;
+      }
+    });
   }
+  return pendingTrim;
+}
+
+// Cache storage may be unavailable (private browsing, eviction, or I/O errors).
+// A healthy network response must still be usable when its offline copy is not.
+async function openCache(name) {
+  try { return await caches.open(name); } catch { return null; }
+}
+async function matchCache(cache, request, options) {
+  try { return cache ? await cache.match(request, options) : undefined; } catch { return undefined; }
+}
+
+// Register while the fetch event is active, before the first async cache read.
+// Storage failures never reject the network response or leave an unhandled task.
+function keepAlive(event) {
+  let complete;
+  event.waitUntil(new Promise(resolve => { complete = resolve; }));
+  return work => Promise.resolve(work).catch(() => undefined).then(() => complete());
+}
+
+function cacheFirst(event, name, load, accepts, afterWrite) {
+  const persist = keepAlive(event);
+  event.respondWith((async () => {
+    const cache = await openCache(name);
+    const hit = await matchCache(cache, event.request, { ignoreSearch: name !== TILE_CACHE });
+    if (hit) {
+      persist();
+      return hit;
+    }
+    try {
+      const response = await load();
+      persist(cache && accepts(response)
+        ? Promise.resolve().then(() => cache.put(event.request, response.clone())).then(() => afterWrite?.())
+        : undefined);
+      return response;
+    } catch {
+      persist();
+      return Response.error();
+    }
+  })());
 }
 
 self.addEventListener('fetch', (e) => {
@@ -139,64 +200,16 @@ self.addEventListener('fetch', (e) => {
 
   // Map tiles: cache-first (serve offline), then network + store.
   if (isTile(url)) {
-    // FetchEvent.waitUntil must be registered while handling the event. The
-    // promise is completed after a cache miss's write and trim have settled,
-    // but it is deliberately not awaited by respondWith's network response.
-    let completePersistence;
-    const persistence = new Promise((resolve) => { completePersistence = resolve; });
-    e.waitUntil(persistence);
-    const persist = (work) => {
-      Promise.resolve(work)
-        .catch(() => undefined)
-        .then(() => completePersistence());
-    };
-
-    e.respondWith((async () => {
-      let cache;
-      let hit;
-      try {
-        cache = await caches.open(TILE_CACHE);
-        hit = await cache.match(req);
-      } catch (error) {
-        completePersistence();
-        throw error;
-      }
-      if (hit) {
-        completePersistence();
-        return hit;
-      }
-
-      try {
-        // Terrain-RGB tiles must stay CORS-mode (see isCorsTile) and only be
-        // cached on success; other basemap tiles can use no-cors (opaque OK).
-        const network = isCorsTile(url) ? fetch(req) : fetch(req, { mode: 'no-cors' });
-        persist(network.then((res) => {
-          if (isCorsTile(url) && !res.ok) return undefined;
-          return Promise.resolve(cache.put(req, res.clone())).then(() => trimTiles());
-        }));
-        return await network;
-      } catch {
-        completePersistence();
-        return Response.error();
-      }
-    })());
+    const terrain = isCorsTile(url);
+    cacheFirst(e, TILE_CACHE,
+      () => terrain ? fetch(req) : fetch(req, { mode: 'no-cors' }),
+      response => !terrain || response.ok, trimTiles);
     return;
   }
 
-  // Vendored reservations assets: cache-first, store on first fetch.
+  // Vendored reservations assets: cache-first, store on first successful fetch.
   if (isResAsset(url)) {
-    e.respondWith((async () => {
-      const cache = await caches.open(ASSET_CACHE);
-      const hit = await cache.match(req, { ignoreSearch: true });
-      if (hit) return hit;
-      try {
-        const res = await fetch(req);
-        if (res.ok) cache.put(req, res.clone()); // never cache 404s/errors
-        return res;
-      } catch {
-        return hit || Response.error();
-      }
-    })());
+    cacheFirst(e, ASSET_CACHE, () => fetch(req), response => response.ok);
     return;
   }
 
@@ -206,15 +219,17 @@ self.addEventListener('fetch', (e) => {
   if (target.origin !== self.location.origin) return;
   target.search = '';
 
+  // Prod: the shell is cache-first. It changes only when install fills a NEW
+  // SHELL_CACHE name, which happens whenever a shell file's bytes change.
+  if (!DEV && SHELL_URLS.has(target.href)) {
+    cacheFirst(e, SHELL_CACHE, () => fetch(req), response => response.ok);
+    return;
+  }
+
+  const persist = keepAlive(e);
   e.respondWith((async () => {
-    const cache = await caches.open(SHELL_CACHE);
-    const store = (res) => { if (res.ok) cache.put(req, res.clone()); return res; };
-    const stored = () => cache.match(req, { ignoreSearch: true });
-    // Prod: the shell is cache-first. It changes only when install fills a NEW
-    // SHELL_CACHE name, which happens whenever a shell file's bytes change.
-    if (!DEV && SHELL_URLS.has(target.href)) {
-      return (await stored()) || (await fetch(req).then(store).catch(() => null)) || Response.error();
-    }
+    const cache = await openCache(SHELL_CACHE);
+    const stored = () => matchCache(cache, req, { ignoreSearch: true });
     // Everything else same-origin (terms/privacy/support, icons, JSON) can change
     // without renaming the shell cache, so it is network-first and revalidated
     // past the HTTP cache. Dev treats the shell the same way so edits show on
@@ -228,14 +243,16 @@ self.addEventListener('fetch', (e) => {
     const complete = async (res) => {
       if (!res.ok) return res;
       const full = new Response(await res.blob(), { status: res.status, statusText: res.statusText, headers: res.headers });
-      await cache.put(req, full.clone()).catch(() => undefined);
+      if (cache) await cache.put(req, full.clone()).catch(() => undefined);
       return full;
     };
-    const network = fetch(url, { cache: 'no-cache', redirect: req.redirect || 'follow' }).then(complete);
-    e.waitUntil(network.catch(() => undefined));
+    const network = Promise.resolve().then(() =>
+      fetch(url, { cache: 'no-cache', redirect: req.redirect || 'follow' })).then(complete);
+    persist(network);
     const copy = await stored();
     if (!copy) return network.catch(() => Response.error());
-    const waited = new Promise((resolve) => setTimeout(() => resolve(copy), NETWORK_WAIT_MS));
-    return Promise.race([network, waited]).catch(() => copy);
+    let timer;
+    const waited = new Promise((resolve) => { timer = setTimeout(() => resolve(copy), NETWORK_WAIT_MS); });
+    return Promise.race([network, waited]).catch(() => copy).finally(() => clearTimeout(timer));
   })());
 });

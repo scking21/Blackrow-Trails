@@ -37,6 +37,8 @@
     var dLon = toRad(b.longitude - a.longitude);
     var s = Math.sin(dPhi / 2) * Math.sin(dPhi / 2) +
             Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    // Roundoff at antipodal points can push the haversine just above 1.
+    s = Math.max(0, Math.min(1, s));
     return 2 * R_EARTH * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
   }
 
