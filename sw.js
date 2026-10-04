@@ -9,7 +9,7 @@
 // but not sw.js, so every returning browser kept serving the broken stylesheet
 // out of 'trail-shell-v8'. Derived from the shell bytes for exactly the reason
 // ASSET_CACHE is — the manual discipline has now failed for both caches.
-const SHELL_CACHE = 'trail-shell-9600ac85e9c1';  // substituted by scripts/emit-sw.mjs from shell bytes
+const SHELL_CACHE = 'trail-shell-e70fa1fe4bc2';  // substituted by scripts/emit-sw.mjs from shell bytes
 const TILE_CACHE  = 'trail-tiles-v1';   // never rename — holds users' offline map tiles
 // ASSET_CACHE holds vendored code (pdf.js / tesseract / jeep-sqlite / sql-wasm.wasm
 // — see isResAsset), NOT user data. It is served cache-first with no revalidation,
@@ -68,7 +68,7 @@ const SHELL_URLS = new Set(SHELL_ASSETS.map((a) => new URL(a, self.location.href
 // the final www/ bytes. Install refuses a file the CDN has not yet updated, so a
 // half-propagated deploy leaves the previous worker in place instead of caching
 // a mixed shell under the new name. Empty in source, so tests and dev skip it.
-const SHELL_INTEGRITY = {"./":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./index.html":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./licenses.html":"sha256-jUvY/PCZ0gkB4h8RsB/3J0OEOXv8+7Bd1OkwRwe2KQs=","./styles.css":"sha256-6w4zi+w0GpmePFuVNqPzRzH14WRgwB9I1nLXON13HhE=","./vendor/leaflet/leaflet.css":"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=","./vendor/leaflet/leaflet.js":"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=","./geo.js":"sha256-dkNkAjs10NsEVPvF6wmdsQwccBw6sTeM77gOMM37XCw=","./ar.js":"sha256-2EkEN+HzDChlM56X2e/y6+Uf65c8BIK5tNHpFdwdOCA=","./billing.js":"sha256-NiaHeSNOUa3MSWoF6FS2+Hd/nEYloqHdDbo+0s+4Wgo=","./share.js":"sha256-tv0b9YhHuJC03U54FB1rM0cQKAkw5bx5U4kqDYGrLWM=","./analytics.js":"sha256-X6j+VKBZCHw075BwLHcN4e1JDqRB30QUxuSN4d6fPw0=","./reservations.js":"sha256-IpqWqpZe7tgCNnpqBku4a5rfOPyBDrcq5nFJYC38IbY=","./app.js":"sha256-+tSLdvb5JZLPF26QXViy3e5Df4qMj/e/vpPVro/QYB0="};
+const SHELL_INTEGRITY = {"./":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./index.html":"sha256-+4a0VmNWRVHi7miHQaI4Jbtti55dI6HJFZ4oWK45TsQ=","./licenses.html":"sha256-jUvY/PCZ0gkB4h8RsB/3J0OEOXv8+7Bd1OkwRwe2KQs=","./styles.css":"sha256-6w4zi+w0GpmePFuVNqPzRzH14WRgwB9I1nLXON13HhE=","./vendor/leaflet/leaflet.css":"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=","./vendor/leaflet/leaflet.js":"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=","./geo.js":"sha256-dkNkAjs10NsEVPvF6wmdsQwccBw6sTeM77gOMM37XCw=","./ar.js":"sha256-2EkEN+HzDChlM56X2e/y6+Uf65c8BIK5tNHpFdwdOCA=","./billing.js":"sha256-NiaHeSNOUa3MSWoF6FS2+Hd/nEYloqHdDbo+0s+4Wgo=","./share.js":"sha256-tv0b9YhHuJC03U54FB1rM0cQKAkw5bx5U4kqDYGrLWM=","./analytics.js":"sha256-X6j+VKBZCHw075BwLHcN4e1JDqRB30QUxuSN4d6fPw0=","./reservations.js":"sha256-bny8RTDP6JeEOVKZCaV2VAezb+An+Z3blkLsD2Qaxn0=","./app.js":"sha256-+tSLdvb5JZLPF26QXViy3e5Df4qMj/e/vpPVro/QYB0="};
 
 // Vendored reservations assets (loaded on demand). Cached on first fetch so the
 // Travel feature keeps working offline afterwards.
