@@ -1071,6 +1071,12 @@
     #tab-planner .planner-wrap { padding: 18px; }
     #tab-reservations #res-mount { max-width: 820px; padding: 6px; }
 
+    /* WebKit has no prefers-reduced-transparency, so the iOS shell sets the attribute from
+       UIKit's Reduce Transparency setting (AppDelegate.swift). */
+    :root[data-reduce-transparency] #tab-planner .planner-wrap,
+    :root[data-reduce-transparency] #tab-reservations #res-mount {
+      background: #f8faf6; -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
     @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
       #tab-planner .planner-wrap, #tab-reservations #res-mount {
         background: #f8faf6; -webkit-backdrop-filter: none; backdrop-filter: none;
