@@ -22,6 +22,11 @@
      also resets font-family/weight/style/line-height on <html>, so <body> keeps
      declaring the family stack — descendants inherit from there, unchanged. */
   html { font: -apple-system-body; }
+  /* iOS zooms the page when a focused text control renders under 16px.
+     -webkit-touch-callout exists only in iOS WebKit. */
+  @supports (-webkit-touch-callout: none) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: max(1rem, 16px) !important; }
+  }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -489,7 +494,7 @@
   .day-head .day-title { font-weight:700; font-size: 0.9375rem; flex:1; border:none; background:transparent; color:#22301f; padding:2px 4px; border-radius:6px; }
   .day-head .day-title:focus { background:#fff; outline:1.5px solid #2e6b34; }
   .day-head .day-active-tag { font-size: 0.625rem; font-weight:700; color:#2e6b34; background:#cfe6cf; border-radius:999px; padding:2px 7px; }
-  .day-head .day-del { border:none; background:none; color:var(--muted); font-size: 1rem; cursor:pointer; line-height:1; padding:4px; }
+  .day-head .day-del { min-width:44px; min-height:44px; border:none; background:none; color:var(--muted); font-size: 1rem; cursor:pointer; line-height:1; padding:4px; }
   .day-head .day-del:hover { color:#c0392b; }
   .day-totals { display:flex; gap:14px; padding:6px 14px 0; font-size: 0.71875rem; color:var(--muted); }
   .day-totals b { color:#2b3329; }
@@ -514,10 +519,10 @@
      text in a scrollable pane. Cap each text size with min() so Dynamic Type
      stops it from covering the map; .rt-row already wraps, so nothing clips. */
   #route-toolbar .rt-stat { font-size: min(0.75rem, 12px); opacity:.9; margin-right:4px; }
-  #route-toolbar button { border:none; border-radius:8px; padding:7px 11px; font-size: min(0.8125rem, 13px); font-weight:600; cursor:pointer; }
+  #route-toolbar button { min-width:44px; min-height:44px; border:none; border-radius:8px; padding:7px 11px; font-size: min(0.8125rem, 13px); font-weight:600; cursor:pointer; }
   #route-toolbar .rt-finish { background:#2e6b34; color:#fff; }
   #route-toolbar .rt-undo, #route-toolbar .rt-cancel { background:#3a5640; color:#dfeede; }
-  #route-toolbar .rt-snap { display:flex; align-items:center; gap:5px; font-size: min(0.75rem, 12px); cursor:pointer; }
+  #route-toolbar .rt-snap { display:flex; align-items:center; gap:5px; min-height:44px; font-size: min(0.75rem, 12px); cursor:pointer; }
   #route-toolbar .rt-hint { font-size: min(0.6875rem, 11px); opacity:.8; margin-top:6px; }
 
   /* ===== Trail name search (on the map) ===== */
@@ -941,17 +946,17 @@
     }
     .map-card .leaflet-control-zoom { display: flex; flex-direction: column; gap: 7px; border: 0; box-shadow: none; }
     .map-card .leaflet-control-zoom a {
-      display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; line-height: 44px;
+      display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; line-height: 48px;
       border: 0; border-radius: 50% !important; color: var(--forest-900); background: rgba(248, 252, 246, .95); font-size: 1.25rem;
     }
     .map-card .leaflet-control-zoom a:first-child { border-radius: 50% 50% 0 0; }
     .map-card .leaflet-control-zoom a:last-child { border-radius: 0 0 50% 50%; }
     .map-card .leaflet-top.leaflet-left { left: auto; right: 8px; }
-    #locate-btn { right: 12px !important; bottom: 54px !important; width: auto !important; height: 44px !important; border: 0 !important; background: rgba(248, 252, 246, .96) !important; }
+    #locate-btn { right: 12px !important; bottom: 54px !important; width: auto !important; height: 48px !important; border: 0 !important; background: rgba(248, 252, 246, .96) !important; }
     #dl-area-btn, #sos-btn, #wp-btn, #track-btn, #tools-btn, #sat-btn { display: none !important; }
     .map-options-btn {
       display: flex; position: absolute; z-index: 1000; left: 12px; bottom: 54px; align-items: center; gap: 7px;
-      min-height: 44px; padding: 0 11px; border: 0; border-radius: 22px; background: rgba(248, 252, 246, .92);
+      min-height: 48px; padding: 0 11px; border: 0; border-radius: 24px; background: rgba(248, 252, 246, .92);
       color: var(--forest-900); box-shadow: 0 5px 16px rgba(12, 49, 36, .2); font: 700 0.6875rem inherit;
     }
     .map-options-btn img { width: 18px; height: 18px; }
@@ -1065,6 +1070,12 @@
     }
     #tab-planner .planner-wrap { padding: 18px; }
     #tab-reservations #res-mount { max-width: 820px; padding: 6px; }
+
+    @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+      #tab-planner .planner-wrap, #tab-reservations #res-mount {
+        background: #f8faf6; -webkit-backdrop-filter: none; backdrop-filter: none;
+      }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       #map-options { transition: none; }
