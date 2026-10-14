@@ -1156,6 +1156,12 @@
 }
 .map-app-options button { background: #24552e; color: #fff; border-color: #24552e; }
 .map-app-options button:focus-visible, .map-app-cancel:focus-visible, .map-app-select:focus-visible { outline: 3px solid #33774c; outline-offset: 3px; }
+.customize-view-options { display: grid; gap: 4px; margin-bottom: 16px; }
+.customize-view-row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 4px; cursor: pointer; font-weight: 600; }
+.customize-view-row input { width: 22px; height: 22px; flex: none; accent-color: #24552e; }
+.customize-view-row img { width: 22px; height: 22px; flex: none; }
+.customize-view-row:has(input:focus-visible) { outline: 3px solid #33774c; outline-offset: 2px; border-radius: 8px; }
+.user-hidden { display: none !important; }
 .map-app-select { width: 100%; min-height: 48px; padding: 8px 10px; border: 1px solid #c9c2b2; border-radius: 8px; background: #fff; color: var(--text); font: inherit; }
 
 .stored-data-dialog { width: min(92vw, 40rem); max-height: 85dvh; overflow: auto; border: 1px solid #63866a; border-radius: 1rem; padding: 1.25rem; background: #f7f8f2; color: #24362c; }

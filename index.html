@@ -35,6 +35,13 @@
   <button id="map-app-cancel" class="map-app-cancel" type="button">Cancel</button>
 </dialog>
 
+<dialog id="customize-view-dialog" class="map-app-dialog" aria-labelledby="customize-view-title" aria-describedby="customize-view-copy">
+  <h2 id="customize-view-title">Choose What You See</h2>
+  <p id="customize-view-copy">Uncheck anything you don't use. Your choice stays on this device.</p>
+  <div id="customize-view-options" class="customize-view-options"></div>
+  <button id="customize-view-done" class="map-app-cancel" type="button">Done</button>
+</dialog>
+
 <header>
   <h1>
     <span class="brand-mark" aria-hidden="true"><img src="assets/icons/phosphor/tree-evergreen.svg" alt=""></span>
@@ -278,6 +285,7 @@
     </div>
     <p class="planner-sub">Choose a trail, then add it to a day.</p>
     <button id="app-guide-open" class="app-guide-open" type="button">How to use Blackrow Trails</button>
+    <button id="customize-view-open" class="app-guide-open" type="button">Choose what you see</button>
     <button id="plan-add-trail" class="btn-paid planner-add-trail" type="button">Add a trail</button>
     <div class="planner-head" style="margin:0 0 12px">
       <span id="plan-saved" style="font-size: 0.75rem;color:var(--accent)">✓ Auto-saved on this device</span>
@@ -303,7 +311,7 @@
     <div id="plan-days"></div>
     <button id="plan-add-day" class="btn-paid secondary" style="margin-top:6px">Add another day</button>
 
-    <details class="planner-disclosure">
+    <details class="planner-disclosure" id="custom-routes-section">
       <summary>Draw a custom route</summary>
     <div class="membership-card" id="route-planner-card">
       <h2>Custom routes <span class="lock-pill" id="planner-lock">PAID</span></h2>
@@ -315,7 +323,7 @@
     </div>
     </details>
 
-    <div class="wp-section">
+    <div class="wp-section" id="waypoints-section">
       <div class="planner-head" style="margin-top:24px">
         <h2 style="font-size: 1.0625rem">My Waypoints <span class="kit-tag" id="wp-count">0</span></h2>
         <div style="display:flex;gap:14px;align-items:center">
@@ -329,7 +337,7 @@
       <div class="plan-list" id="wp-list"></div>
     </div>
 
-    <div class="trip-kit">
+    <div class="trip-kit" id="trip-kit-section">
       <h2 style="margin:0 0 4px;font-size: 1.0625rem">Trip Kit</h2>
       <p class="planner-sub" style="margin-bottom:14px">Choose an activity for your gear checklist. Review regional hazards and access before leaving.</p>
       <div class="kit-types" id="kit-types"></div>
