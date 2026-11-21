@@ -21,7 +21,7 @@
 </head>
 <body>
   <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-10-02 (general policy); <a href="#ios-1-0">iOS 1.0 disclosures</a> updated: 2026-11-21</p>
+  <p class="updated">Last updated: 2026-11-21 (general policy); <a href="#ios-1-0">iOS 1.0 disclosures</a> updated: 2026-11-21</p>
 
   <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
   account system and shows no ads. Most trip, reservation, and location data
@@ -192,11 +192,22 @@
   <ul>
     <li><strong>Map tiles:</strong> OpenTopoMap, OpenStreetMap, and USGS Topo</li>
     <li><strong>Elevation tiles:</strong> AWS Terrarium</li>
-    <li><strong>Public land / parcels:</strong> USGS PAD-US and county/state parcel services (Esri/ArcGIS in versions other than iOS 1.0)</li>
+    <li><strong>Public land and parcels:</strong> The website and iPhone version 1.0
+    request public land and conservation easement boundaries from the USGS National
+    Map. The parcel layer sends the visible map area to the State of Colorado for
+    boundary outlines. It shows no owner names or street addresses. Earlier versions
+    may use county parcel services hosted on Esri’s ArcGIS platform.</li>
     <li><strong>Trails &amp; features:</strong> USGS National Map, OpenStreetMap/Overpass</li>
     <li><strong>Weather:</strong> the U.S. National Weather Service for forecasts,
     RainViewer for radar, and the Iowa Environmental Mesonet as a radar fallback</li>
   </ul>
+  <p><strong>Trail search on the website.</strong> When you type at least three
+  characters, the website can send those words to the USGS National Map before
+  you press Search. A fallback search can send the words and the visible map
+  area to <code>overpass-api.de</code> and, if needed, to the Private.coffee
+  mirror at <code>overpass.kumi.systems</code>. These services receive your IP
+  address with the request. For a search near home, the map area can reveal
+  your location.</p>
   <p>When a live source is down or you are offline, the app may reuse data it
   fetched earlier for the same area. This reuse involves no network request.</p>
   <p>The app sends a bounding box, tile coordinate, or selected point as needed.
