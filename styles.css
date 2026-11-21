@@ -1106,6 +1106,20 @@
     .active-trail-stats { flex-wrap: wrap; row-gap: 6px; }
   }
 
+.store-download {
+  display: inline-flex; align-items: center; min-height: 44px; flex: none; border-radius: 6px;
+}
+.store-download img { display: block; }
+.store-download:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+header .store-download { color: #fff; }
+header:has(.store-download) #region-select { min-width: 0; }
+#onboarding-dialog .store-download { margin-top: 12px; }
+body:has(#onboarding-dialog[open]) header .store-download { visibility: hidden; }
+@media (max-width: 600px) {
+  header:has(.store-download) { column-gap: 12px; }
+  header:has(.store-download) #region-select { flex: 1 1 0; width: auto; }
+}
+
 /* First-use guide follows the app's existing cream and forest-green palette. */
 #onboarding-dialog {
   width: min(480px, calc(100vw - 32px));
