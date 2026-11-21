@@ -21,7 +21,7 @@
 </head>
 <body>
   <h1>Blackrow Trails Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-10-02</p>
+  <p class="updated">Last updated: 2026-10-02 (general policy); <a href="#ios-1-0">iOS 1.0 disclosures</a> updated: 2026-11-21</p>
 
   <p>Blackrow Trails ("the app") is private by default. The app has no Blackrow
   account system and shows no ads. Most trip, reservation, and location data
@@ -57,7 +57,7 @@
   followed route. Blackrow Trails does not send the raw GPS fix to the developer
   or to any third-party usage analytics service.</p>
   <p>When you center the map on your position or request nearby map, trail,
-  parcel, elevation, radar, or weather data, the provider receives the requested
+  parcel, elevation, radar, or weather data where supported, the provider receives the requested
   map area or point. That area or point can approximate your location. The
   provider also receives the IP address and standard request metadata needed for
   an internet connection.</p>
@@ -87,7 +87,7 @@
   pressure) to make elevation gain more accurate. Pressure readings stay in
   memory; only the corrected elevations are saved with the track.</p>
   <p>The camera is used only for the augmented-reality view. The app does not
-  save or send camera images.</p>
+  save or send camera images. See <a href="#ios-1-0">iOS 1.0 disclosures</a> for the on-device sign reader within AR.</p>
 
   <h2>Trail status on the Lock Screen</h2>
   <p>While trail alerts are on, the app shows the trail name, whether you are on
@@ -108,7 +108,7 @@
   your iPhone. The app gives the model your question, the trail's saved public
   details (such as its name, listed length, difficulty, and description), and
   the trail alert status described above. It does not give the model your
-  coordinates, recorded tracks, or notes. Blackrow Trails does not send
+  coordinates, recorded tracks, or notes. In this built-in, on-device mode, Blackrow Trails does not send
   questions or answers to any server, does not use a cloud model, and does not
   save them; closing the assistant clears them. Answers can be wrong and do not
   reflect current trail conditions.</p>
@@ -123,7 +123,7 @@
   trail alerts. The app handles these on your iPhone the same way. Apple's
   handling of your Siri requests is covered by Apple's privacy policy.</p>
   <p>Apple Private Cloud Compute is not enabled in this build. Future activation
-  requires updated disclosures and an explicit choice for each cloud question.</p>
+  requires updated disclosures and an explicit choice for each cloud question. This does not govern separately chosen system features such as Siri or Writing Tools.</p>
   <p>The website does not include the assistant. The Android app has no voice
   questions or Siri; its assistant is described next.</p>
 
@@ -158,6 +158,8 @@
 
 
   <h2>Trip imports and assistant transfers</h2>
+  <p>The assistant transfer service, tokens and pending packages described in
+  this section do not apply to Blackrow Trails 1.0 for iOS.</p>
   <p>Trip files that you select for manual import are read and reviewed on your
   device. Blackrow Trails does not upload a manually selected trip file.</p>
   <p>If you open a supported Blackrow Trails transfer link created through an AI
@@ -186,11 +188,11 @@
 
   <h2>Maps, weather, and external services</h2>
   <p>To show live maps and conditions, the app fetches data for the area that
-  you are viewing or the point that you tap from third-party providers:</p>
+  you are viewing or the point that you tap from third-party providers: The list covers multiple versions. See <a href="#ios-1-0">iOS 1.0 disclosures</a> for its separate weather, parcel and search behavior.</p>
   <ul>
     <li><strong>Map tiles:</strong> OpenTopoMap, OpenStreetMap, and USGS Topo</li>
     <li><strong>Elevation tiles:</strong> AWS Terrarium</li>
-    <li><strong>Public land / parcels:</strong> USGS PAD-US and county/state parcel services (Esri/ArcGIS)</li>
+    <li><strong>Public land / parcels:</strong> USGS PAD-US and county/state parcel services (Esri/ArcGIS in versions other than iOS 1.0)</li>
     <li><strong>Trails &amp; features:</strong> USGS National Map, OpenStreetMap/Overpass</li>
     <li><strong>Weather:</strong> the U.S. National Weather Service for forecasts,
     RainViewer for radar, and the Iowa Environmental Mesonet as a radar fallback</li>
@@ -301,8 +303,81 @@
     barometer while you record a track, to improve elevation gain. Android needs
     no permission for this.</li>
     <li><strong>Camera:</strong> used only for the augmented-reality view. No
-    photos are stored or sent.</li>
+    photos are stored or sent. See the iOS 1.0 disclosures for on-device sign reading and motion sensor use.</li>
   </ul>
+
+  <h2 id="ios-1-0">Blackrow Trails 1.0 for iOS</h2>
+  <p>These disclosures apply when you use the first iOS App Store version
+  (Blackrow Trails 1.0). They do not describe the website or Android app and do
+  not indicate that the iOS version is already available.</p>
+
+  <h3>Maps, forecasts and trail searches</h3>
+  <p>This version uses the U.S. National Weather Service for point forecasts
+  and active alerts. It does not request radar data. The app requests public
+  land boundaries, land managers and conservation easements directly from
+  the USGS National Map at <code>edits.nationalmap.gov</code>. For Colorado
+  parcel outlines, it sends the map bounds to <code>gis.colorado.gov</code>
+  and displays boundary shapes without owner names or street addresses.
+  If a requested map or forecast point is at your position, it may reveal
+  your precise location. Blackrow does not send your entire recorded track
+  to obtain a forecast.</p>
+  <p>After you type three or more characters in online trail search, Blackrow
+  can send your search words to the USGS National Map to find matches, without
+  waiting for you to press Search. For a fallback or constrained-connection
+  search, Blackrow can send the words and visible map bounds to overpass-api.de.
+  Providers receive the search and your IP address as part of the request.
+  Their service logs can associate search words or a requested location with
+  network information. This is why Blackrow lists Search History and Precise
+  Location as linked to you for app functionality in its iOS privacy
+  disclosures. Blackrow uses the information to show trail results, maps and
+  forecasts. It does not use these data to track you. Enter public trail or
+  place names and keep personal details out of the search box.</p>
+  <p>Blackrow does not send the words you type for online trail search to
+  the alternate Private.coffee server. That server may retain limited
+  request metadata from other map requests, including a truncated IP address,
+  for up to 48 hours. Provider logs are managed by the providers; deleting your
+  data in Blackrow does not erase those logs. See the privacy policies of
+  <a href="https://www.usgs.gov/office-of-the-director/privacy-policies">USGS</a>,
+  the <a href="https://www.weather.gov/privacy/">National Weather Service</a>,
+  and <a href="https://overpass.kumi.systems/index.html">Private.coffee</a>.</p>
+
+  <h3>Recording, motion and sign text</h3>
+  <p>Trail alerts use location while the phone is locked only as permitted
+  by your settings and device. A separate Live Activity while recording can
+  show elapsed time excluding pauses and, after a location fix, distance.
+  Anyone who can see the Lock Screen can see these totals. The recording card
+  does not show the walk name, route or coordinates.</p>
+  <p>In the iOS camera view, step and motion readings help estimate movement
+  when GPS is weak. Choosing <strong>Read sign text</strong> within the live
+  augmented-reality view reads selected camera frames on your device. Blackrow
+  does not save or send the frames or displayed text. Readings can be wrong
+  and do not change your route or guidance.</p>
+
+  <h3>Apple Writing Tools and Siri</h3>
+  <p>Blackrow's built-in trail-question mode answers on your device. ChatGPT
+  is a separate, optional Apple Writing Tools choice. Blackrow does not send
+  the temporary draft to OpenAI when you open, type in or preview it. You can
+  add public trail facts yourself; trail names may reveal your area.</p>
+  <p>If you choose ChatGPT through Apple, check the request and what text is
+  included before sending. The system may offer your selection or all text
+  in the active editor. Writing Tools may also be available in other editable
+  fields, depending on your device and system settings. Do not include private
+  travel details or notes unless you intend to share them. If you send a request,
+  Apple's extension sends the request, included content and limited context to
+  OpenAI. Apple collects limited service information such as request size and
+  count. Blackrow works without the extension.</p>
+  <p>When you use Apple's extension without signing in to ChatGPT, OpenAI
+  does not train on these requests or retain the request or response unless
+  required by law. If you connect a ChatGPT account, OpenAI's policies and your
+  account controls apply to history and model training. Closing Blackrow's
+  temporary draft clears the local draft, not anything already shared. See
+  <a href="https://www.apple.com/legal/privacy/data/en/third-party-ai/">Apple's ChatGPT extension privacy information</a>
+  and <a href="https://help.openai.com/en/articles/9737562-how-your-data-is-handled-when-you-use-chatgpt-through-apples-integrations">OpenAI's data handling</a>.</p>
+  <p>While a saved public trail detail is visible, Blackrow makes its public
+  catalog text available to Siri if you ask about the displayed trail. Blackrow
+  does not attach your live GPS, recordings, private notes, trail-alert status
+  or account data to that activity. Closing or leaving the detail clears the
+  association. Siri's answer stays in the system experience.</p>
 
   <h2>Children</h2>
   <p>Blackrow Trails is a general-audience outdoor app and is not directed to
